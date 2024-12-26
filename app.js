@@ -10,7 +10,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 
 const allowedOrigins = [origins.client, origins.service, origins.admin];
-app.use(cors({origin:allowedOrigins})); 
+const corsOptions = {
+    origin: (origin, callback) => {
+    if(!origin) return callback(new Error('No origin provided'));
+      if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);  // Allow the request if origin matches
+      } else {
+        callback(new Error('Not allowed by CORS'));  // Reject the request
+      }
+    },
+  };
+app.use(cors(corsOptions));  
 
 
 app.use('/auth', authRoute);
