@@ -1,0 +1,35 @@
+{
+  "name": "appointmentscheduler-backend",
+  "version": "1.0.0",
+  "description": "this is the backend of appointment scheduler MERN stack application",
+  "keywords": [
+    "appointment",
+    "scheduler",
+    "mern",
+    "athulkrishnama",
+    "servicemanagement"
+  ],
+  "homepage": "https://github.com/athulkrishnama/appointment-scheduler-backend#readme",
+  "bugs": {
+    "url": "https://github.com/athulkrishnama/appointment-scheduler-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/athulkrishnama/appointment-scheduler-backend.git"
+  },
+  "license": "ISC",
+  "author": "athulkrishnama",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2",
+    "morgan": "^1.10.0"
+  }
+}
