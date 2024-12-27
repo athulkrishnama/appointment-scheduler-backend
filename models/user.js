@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-import ROLES from '../constants/roles';
-
+const ROLES = require('../constants/roles');
+const bcrypt = require('bcrypt')
 const userSchema = new mongoose.Schema(
   {
     fullname: {
@@ -67,7 +67,6 @@ const userSchema = new mongoose.Schema(
 // Hash password before saving the user
 userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
-    const bcrypt = require('bcryptjs');
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
@@ -75,7 +74,6 @@ userSchema.pre('save', async function (next) {
 
 // Add a method to validate the password
 userSchema.methods.validatePassword = async function (inputPassword) {
-  const bcrypt = require('bcryptjs');
   return await bcrypt.compare(inputPassword, this.password);
 };
 
