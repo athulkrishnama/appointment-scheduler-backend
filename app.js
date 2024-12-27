@@ -5,6 +5,7 @@ const app = express();
 const origins = require("./constants/origins");
 const authRoute = require("./routes/authRoute");
 const mongoose = require("mongoose");
+const session = require("express-session");
 
 dotenv.config();
 
@@ -16,6 +17,11 @@ mongoose
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true
+}))
 
 const allowedOrigins = [origins.client, origins.service, origins.admin];
 const corsOptions = {
