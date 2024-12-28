@@ -66,4 +66,23 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-module.exports = { signup, verifyOtp };
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.session.user;
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const emailsent = await sendMail(email, otp);
+    if (!emailsent) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to send email" });
+    }
+    console.log(`Email sent to ${email} otp: ${otp}`);
+    req.session.otp = otp;
+    req.session.otpExpiry = Date.now() +  60 * 1000; 
+    res.status(200).json({ success: true, message: "Resended otp sent successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to resend otp" });
+  }
+}
+module.exports = { signup, verifyOtp, resendOtp };
