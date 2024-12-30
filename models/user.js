@@ -29,13 +29,10 @@ const userSchema = new mongoose.Schema(
     },
     serviceDetails: {
       type: new mongoose.Schema({
+        _id:false,
         isAccepted:{
             type: Boolean,
             default: false,
-        },
-        category: {
-          type: String,
-          required: [true, 'Service category is required'],
         },
         description: {
           type: String,
@@ -45,7 +42,6 @@ const userSchema = new mongoose.Schema(
           {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Service', 
-            required: true,
           },
         ],
       }),
