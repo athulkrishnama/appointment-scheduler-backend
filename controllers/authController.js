@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const signup = async (req, res) => {
   try {
     try {
-      const { fullname, email, password, role } = req.body;
+      const { fullname, email, password,serviceDetails, role } = req.body;
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res
@@ -22,7 +22,7 @@ const signup = async (req, res) => {
 
       console.log(`Email sent to ${email} otp: ${otp}`);
 
-      req.session.user = { fullname, email, password, role };
+      req.session.user = { fullname, email, password,serviceDetails, role };
       req.session.otp = otp;
       req.session.otpExpiry = Date.now() +  60 * 1000; 
       res.status(200).json({ success: true, message: "Otp sent successfully" });
@@ -88,7 +88,7 @@ const resendOtp = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password, googleId } = req.body;
+    const { email, password, googleId , role} = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -96,9 +96,11 @@ const login = async (req, res) => {
     }
 
     if (!user.isActive) {
-      return res.status(401).json({ success: false, message: "User is blocked" });
+      return res.status(400).json({ success: false, message: "User is blocked" });
     }
-
+    if(user.role !== role){
+      return res.status(400).json({ success: false, message: "You are not a " + role });
+    }
     if (user.googleId) {
 
 
@@ -191,7 +193,36 @@ const googleSignup = async (req, res) => {
   }
 }
 
-// Route to refresh access token
+const refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, decoded) => {
+        if (err) {
+          return res.status(403).json({ success: false, message: "Forbidden" });
+        }
+        const user = await User.findById(decoded.id);
+        if (!user) {
+          return res.status(403).json({ success: false, message: "Unauthorized" });
+        }
+        const accessToken = jwt.sign(
+          { id: user._id, email: user.email },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "15m" }
+        );
+        return res.status(200).json({ success: true, accessToken });
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to refresh token" });
+  }
+};
 
 
-module.exports = { signup, verifyOtp, resendOtp, login, googleSignup };
+module.exports = { signup, verifyOtp, resendOtp, login, googleSignup , refreshToken};
