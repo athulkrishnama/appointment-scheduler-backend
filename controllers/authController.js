@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const sendMail = require("../utils/nodemailer");
+const jwt = require("jsonwebtoken");
 const signup = async (req, res) => {
   try {
     try {
@@ -13,7 +14,6 @@ const signup = async (req, res) => {
       const otp = Math.floor(100000 + Math.random() * 900000);
       const emailsent = await sendMail(email, otp);
 
-      // check if email was sent
       if (!emailsent) {
         return res
           .status(500)
@@ -39,7 +39,6 @@ const signup = async (req, res) => {
 };
 
 
-// verify otp
 
 const verifyOtp = async (req, res) => {
   try {
@@ -85,4 +84,114 @@ const resendOtp = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to resend otp" });
   }
 }
-module.exports = { signup, verifyOtp, resendOtp };
+
+
+const login = async (req, res) => {
+  try {
+    const { email, password, googleId } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (!user.isActive) {
+      return res.status(401).json({ success: false, message: "User is blocked" });
+    }
+
+    if (user.googleId) {
+
+
+      const accessToken = jwt.sign(
+        { id: user._id, email: user.email , role: user.role},
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "15m" }
+      );
+
+      const refreshToken = jwt.sign(
+        { id: user._id, email: user.email , role: user.role},
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, 
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Google login successful",
+        accessToken,
+        user: {
+          name: user.fullname,
+          email: user.email,
+          phone: user.phoneNumber,
+        },
+      });
+    }
+
+    const isPasswordValid = await user.validatePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: "Invalid password" });
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email , role:user.role},
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "10s" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id, email: user.email , role:user.role},
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "1m" }
+    );
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      accessToken,
+      user: {
+        name: user.fullname,
+        email: user.email,
+        phone: user.phoneNumber,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: "Failed to login" });
+  }
+};
+
+
+const googleSignup = async (req, res) => {
+  try {
+    const { fullname, email, role } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ success: false, message: "User already exists" });
+    }
+    const newUser = new User({ fullname, email, role, googleId: true });
+    await newUser.save();
+    res.status(200).json({ success: true, message: "User created successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to create user" });
+  }
+}
+
+// Route to refresh access token
+
+
+module.exports = { signup, verifyOtp, resendOtp, login, googleSignup };
