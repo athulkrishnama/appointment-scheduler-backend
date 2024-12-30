@@ -9,4 +9,6 @@ authRoute.get('/resend-otp', authController.resendOtp);
 authRoute.post('/login', authController.login);
 
 authRoute.post('/google-signup', authController.googleSignup);
+
+authRoute.get('/refresh-token', authController.refreshToken);
 module.exports = authRoute
