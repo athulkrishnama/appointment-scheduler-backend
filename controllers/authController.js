@@ -141,7 +141,7 @@ const login = async (req, res) => {
 
     const isPasswordValid = await user.validatePassword(password);
     if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: "Invalid password" });
+      return res.status(400).json({ success: false, message: "Invalid password" });
     }
 
     const accessToken = jwt.sign(
