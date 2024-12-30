@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     googleId: {
-        type: String,
+        type: Boolean,
     },
     role: {
       type: String,
