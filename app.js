@@ -6,7 +6,7 @@ const origins = require("./constants/origins");
 const authRoute = require("./routes/authRoute");
 const mongoose = require("mongoose");
 const session = require("express-session");
-
+const cookieParser = require("cookie-parser");
 dotenv.config();
 
 // Connect to MongoDB
@@ -22,6 +22,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }))
+
+app.use(cookieParser());
 
 const allowedOrigins = [origins.client, origins.service, origins.admin];
 const corsOptions = {
