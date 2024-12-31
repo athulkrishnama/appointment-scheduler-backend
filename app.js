@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const app = express();
 const origins = require("./constants/origins");
 const authRoute = require("./routes/authRoute");
+const adminRoute = require("./routes/adminRoute");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
@@ -41,6 +42,7 @@ app.options("*", cors(corsOptions));
 
 
 app.use("/auth", authRoute);
+app.use("/admin", adminRoute);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
