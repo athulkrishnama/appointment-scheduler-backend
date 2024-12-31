@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const ROLES = require('../constants/roles');
+const STATUSES = require('../constants/statuses');
 const bcrypt = require('bcrypt')
 const userSchema = new mongoose.Schema(
   {
@@ -31,8 +32,9 @@ const userSchema = new mongoose.Schema(
       type: new mongoose.Schema({
         _id:false,
         isAccepted:{
-            type: Boolean,
-            default: false,
+            type: String,
+            enum: Object.values(STATUSES),
+            default: STATUSES.PENDING,
         },
         description: {
           type: String,
