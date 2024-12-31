@@ -1,4 +1,5 @@
 const ROLES = require("../constants/roles");
+const STATUSES = require("../constants/statuses");
 const User = require("../models/user");
 const sendMail = require("../utils/nodemailer");
 const jwt = require("jsonwebtoken");
@@ -103,8 +104,12 @@ const login = async (req, res) => {
       return res.status(400).json({ success: false, message: "You are not a " + role });
     }
 
-    if(user.role === ROLES.SERVICE && !user.serviceDetails.isAccepted){
-      return res.status(400).json({ success: false, message: "You are not accepted by admin" });
+    if(user.role === ROLES.SERVICE && user.serviceDetails.isAccepted === STATUSES.REJECTED){
+      return res.status(400).json({ success: false, message: "You are rejected by admin" });
+    }
+
+    if(user.role === ROLES.SERVICE && user.serviceDetails.isAccepted === STATUSES.PENDING){
+      return res.status(400).json({ success: false, message: "Your request is pending" });
     }
     if (user.googleId) {
 
