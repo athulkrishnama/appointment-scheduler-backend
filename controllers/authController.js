@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const signup = async (req, res) => {
   try {
     try {
-      const { fullname, email, password,serviceDetails, role } = req.body;
+      const { fullname, email, password,serviceDetails, role , phone, logo} = req.body;
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res
@@ -24,7 +24,7 @@ const signup = async (req, res) => {
 
       console.log(`Email sent to ${email} otp: ${otp}`);
 
-      req.session.user = { fullname, email, password,serviceDetails, role };
+      req.session.user = { fullname, email, password,serviceDetails:JSON.parse(serviceDetails), role, phone };
       req.session.otp = otp;
       req.session.otpExpiry = Date.now() +  60 * 1000; 
       res.status(200).json({ success: true, message: "Otp sent successfully" });
