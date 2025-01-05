@@ -46,6 +46,9 @@ const userSchema = new mongoose.Schema(
             ref: 'Service', 
           },
         ],
+        logo: {
+          type: String,
+        },
       }),
       default: null,
       required: function () {
