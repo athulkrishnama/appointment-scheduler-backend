@@ -4,7 +4,7 @@ const STATUSES = require('../constants/statuses');
 const getTopServices = async (req, res) => {
   try {
     const services = await User.find({ role: 'service' , "serviceDetails.isAccepted":STATUSES.ACCEPTED})
-      .select('fullname serviceDetails.description')
+      .select('fullname serviceDetails.description serviceDetails.logo')
       .limit(10);
     res.status(200).json(services);
   } catch (error) {

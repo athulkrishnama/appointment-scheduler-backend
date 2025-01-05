@@ -29,10 +29,10 @@ const signup = async (req, res) => {
 
       console.log(`Email sent to ${email} otp: ${otp}`);
 
-      req.session.user = { fullname, email, password,serviceDetails:JSON.parse(serviceDetails), role, phone };
+      req.session.user = { fullname, email, password,serviceDetails:serviceDetails&&JSON.parse(serviceDetails), role, phone };
       req.session.otp = otp;
       req.session.otpExpiry = Date.now() +  60 * 1000; 
-      req.session.imageBuffer = req.file.buffer;
+      req.session.imageBuffer = req.file?.buffer;
 
       res.status(200).json({ success: true, message: "Otp sent successfully" });
 
@@ -69,11 +69,12 @@ const verifyOtp = async (req, res) => {
 
     const user = req.session.user;
 
-    const imageBuffer = req.session.imageBuffer;
-    const imageLocation =await imageUploader.uploadLogo(imageBuffer);
- 
-    user.serviceDetails.logo = imageLocation;
-
+    if(user.role === ROLES.SERVICE){
+      const imageBuffer = req.session.imageBuffer;
+      const imageLocation =await imageUploader.uploadLogo(imageBuffer);
+  
+      user.serviceDetails.logo = imageLocation;
+    }
 
     const newUser = new User(user);
     await newUser.save();
@@ -89,6 +90,12 @@ const verifyOtp = async (req, res) => {
 
 const resendOtp = async (req, res) => {
   try {
+    if(!req.session.user){
+      return res.status(400).json({ success: false, message: "User not found" });
+    }
+    if(req.session.otpExpiry > Date.now()){
+      return res.status(400).json({ success: false, message: "Otp not expired" });
+    }
     const { email } = req.session.user;
     const otp = Math.floor(100000 + Math.random() * 900000);
     const emailsent = await sendMail(email, otp);
