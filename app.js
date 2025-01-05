@@ -9,6 +9,7 @@ const clientRoute = require("./routes/clientRoute");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+require("./config/s3");
 dotenv.config();
 
 // Connect to MongoDB
