@@ -2,7 +2,7 @@ const express = require('express');
 const authRoute = express.Router();
 const authController = require('../controllers/authController');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 authRoute.post('/signup',  upload.single('logo'), authController.signup);
 authRoute.post('/verify-otp', authController.verifyOtp);
