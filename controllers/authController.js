@@ -3,16 +3,21 @@ const STATUSES = require("../constants/statuses");
 const User = require("../models/user");
 const sendMail = require("../utils/nodemailer");
 const jwt = require("jsonwebtoken");
+const imageUploader = require("../helpers/imageUploader");
 const signup = async (req, res) => {
   try {
     try {
-      const { fullname, email, password,serviceDetails, role , phone, logo} = req.body;
+
+      const { fullname, email, password,serviceDetails, role , phone} = req.body;
+
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res
           .status(409)
           .json({ success: false, message: "User already exists" });
       }
+
+      // sending otp
       const otp = Math.floor(100000 + Math.random() * 900000);
       const emailsent = await sendMail(email, otp);
 
@@ -27,7 +32,10 @@ const signup = async (req, res) => {
       req.session.user = { fullname, email, password,serviceDetails:JSON.parse(serviceDetails), role, phone };
       req.session.otp = otp;
       req.session.otpExpiry = Date.now() +  60 * 1000; 
+      req.session.imageBuffer = req.file.buffer;
+
       res.status(200).json({ success: true, message: "Otp sent successfully" });
+
     } catch (error) {
       console.log(error);
       res
@@ -46,21 +54,33 @@ const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
     console.log(otp, req.session.otp);
+
     if (req.session.otp != otp) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid OTP" });
     }
+    
     if (Date.now() > req.session.otpExpiry) {
       return res
         .status(400)
         .json({ success: false, message: "OTP expired" });
     }
+
     const user = req.session.user;
+
+    const imageBuffer = req.session.imageBuffer;
+    const imageLocation =await imageUploader.uploadLogo(imageBuffer);
+ 
+    user.serviceDetails.logo = imageLocation;
+
+
     const newUser = new User(user);
     await newUser.save();
+
     req.session.destroy();
     res.status(200).json({ success: true, message: "User created successfully" });
+
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, message: "Failed to create user" });
