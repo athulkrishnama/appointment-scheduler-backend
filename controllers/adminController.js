@@ -46,7 +46,7 @@ const getClients = async (req, res) => {
 
 const updateClientStatus = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const { action } = req.body;
         const user = await User.findById(id);
         if (!user) {
@@ -60,4 +60,41 @@ const updateClientStatus = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to update client status" });
     }
 };
-module.exports = { serviceProviderRequests, updateRequestStatus , getClients, updateClientStatus};
+
+const getServiceProvider = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const serviceProviders = await User.find({ "role": ROLES.SERVICE }).skip((page - 1) * limit).limit(limit);
+        const totalPage = Math.ceil(await User.countDocuments({ "role": ROLES.SERVICE }) / limit);
+        res.status(200).json({ success: true, serviceProviders, totalPage, curPage: page });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Failed to fetch service providers" });
+    }
+};
+
+const updateServiceProviderStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { action } = req.body;
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Service provider not found" });
+        }
+        user.isActive = action === "block" ? false : true;
+        await user.save();
+        res.status(200).json({ success: true, message: "Service provider status updated successfully" });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Failed to update service provider status" });
+    }
+};
+module.exports = {
+    serviceProviderRequests,
+    updateRequestStatus,
+    getClients,
+    updateClientStatus,
+    getServiceProvider,
+    updateServiceProviderStatus
+};
