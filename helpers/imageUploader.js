@@ -9,7 +9,6 @@ const uploadLogo = async (file) => {
         const imagelink = `logo/${Date.now()}`;
         const buffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data);
         
-        console.log("Starting upload with buffer size:", buffer.length);
 
         const upload = new Upload({
             client: s3,
@@ -39,7 +38,6 @@ const uploadLogo = async (file) => {
 const uploadBanner = async (file) => {
     try {
         const imagelink = `banner/${Date.now()}`;
-        console.log("Starting upload with buffer size:", file.length);
 
         const upload = new Upload({
             client: s3,
