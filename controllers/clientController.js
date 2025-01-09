@@ -65,8 +65,19 @@ const getFilterData = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+const getService = async (req, res) => {
+  try {
+    const service = await Service.findById(req.params.id).populate('serviceProvider');
+    if(!service || !service.isActive) return res.status(404).json({ success: false, message: "Service not found" });
+    res.status(200).json({ success: true, service });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Invalid Service" });
+  }
+};
 module.exports = {
   getTopServices,
   getServices,
-  getFilterData
+  getFilterData,
+  getService
 };

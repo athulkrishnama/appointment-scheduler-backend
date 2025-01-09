@@ -7,4 +7,6 @@ clientRoute.get('/getTopServices', clientController.getTopServices)
 clientRoute.get('/services', clientController.getServices);
 clientRoute.get('/getFilterData', clientController.getFilterData);
 
+// get single service
+clientRoute.get('/service/:id', clientController.getService);
 module.exports = clientRoute
