@@ -14,6 +14,7 @@ adminRoute.patch("/updateClientStatus/:id", verifyToken, adminController.updateC
 // service provider management
 adminRoute.get("/service-providers",verifyToken, adminController.getServiceProvider);
 adminRoute.patch("/updateServiceProviderStatus/:id", verifyToken, adminController.updateServiceProviderStatus);
+adminRoute.get("/services", verifyToken, adminController.getServices);
 
 // category management
 adminRoute.get("/categories", verifyToken, categoryController.getCategories);
