@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Service = require("../models/services");
 const STATUSES = require("../constants/statuses");
 const ROLES = require("../constants/roles");
 
@@ -90,11 +91,30 @@ const updateServiceProviderStatus = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to update service provider status" });
     }
 };
+
+const getServices = async (req, res) => {
+    try {
+        const providerId = req.query.providerId;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const filters = {};
+        if (providerId) {
+            filters.serviceProvider = providerId;
+        }
+        const services = await Service.find(filters).skip((page - 1) * limit).limit(limit);
+        const totalPage = Math.ceil(await Service.countDocuments(filters) / limit);
+        res.status(200).json({ success: true, services, totalPage, curPage: page });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Failed to fetch services" });
+    }
+};
 module.exports = {
     serviceProviderRequests,
     updateRequestStatus,
     getClients,
     updateClientStatus,
     getServiceProvider,
-    updateServiceProviderStatus
+    updateServiceProviderStatus,
+    getServices
 };
