@@ -25,7 +25,7 @@ const addService = async (req, res) => {
 
         await service.save();
         await User.findByIdAndUpdate(req.userId, { $push: { "serviceDetails.servicesOffered": service._id } });
-        res.status(201).json({success: true, message: "Service added successfully" });
+        res.status(201).json({success: true, message: "Service added successfully", service });
     } catch (error) {
         console.error("Error adding service:", error);
         res.status(500).json({success: false, message: "Failed to add service" });

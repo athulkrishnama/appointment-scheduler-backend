@@ -6,9 +6,10 @@ const ROLES = require("../constants/roles");
 const serviceProviderRequests = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
+        const limit = parseInt(req.query.limit) || 4;
         const requests = await User.find({ "role": ROLES.SERVICE, "serviceDetails.isAccepted": STATUSES.PENDING }).skip((page - 1) * limit).limit(limit);
-        res.status(200).json({ success: true, requests });
+        const totalPage = Math.ceil(await User.countDocuments({ "role": ROLES.SERVICE, "serviceDetails.isAccepted": STATUSES.PENDING }) / limit);
+        res.status(200).json({ success: true, requests, totalPage, curPage: page });
     } catch (err) {
         console.log(err);
         res.status(500).json({ success: false, message: "Failed to fetch requests" });
@@ -66,8 +67,8 @@ const getServiceProvider = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
-        const serviceProviders = await User.find({ "role": ROLES.SERVICE }).skip((page - 1) * limit).limit(limit);
-        const totalPage = Math.ceil(await User.countDocuments({ "role": ROLES.SERVICE }) / limit);
+        const serviceProviders = await User.find({ "role": ROLES.SERVICE , 'serviceDetails.isAccepted':STATUSES.ACCEPTED}).skip((page - 1) * limit).limit(limit);
+        const totalPage = Math.ceil(await User.countDocuments({ "role": ROLES.SERVICE , 'serviceDetails.isAccepted':STATUSES.ACCEPTED}) / limit);
         res.status(200).json({ success: true, serviceProviders, totalPage, curPage: page });
     } catch (err) {
         console.log(err);

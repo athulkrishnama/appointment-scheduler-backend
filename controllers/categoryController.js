@@ -23,7 +23,7 @@ const addCategory = async (req, res) => {
 const getCategories = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 5;
+        const limit = req.query.limit== 'all'? null : parseInt(req.query.limit) || 5;
         const categories = await Category.find().skip((page - 1) * limit).limit(limit);
         const totalPages = Math.ceil(await Category.countDocuments() / limit) ;
         res.status(200).json({success: true, categories, totalPages});
