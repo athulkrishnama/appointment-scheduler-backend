@@ -5,6 +5,7 @@ const app = express();
 const origins = require("./constants/origins");
 const authRoute = require("./routes/authRoute");
 const adminRoute = require("./routes/adminRoute");
+const servcieProviderRoute = require("./routes/serviceProviderRoute");
 const clientRoute = require("./routes/clientRoute");
 const mongoose = require("mongoose");
 const session = require("express-session");
@@ -46,6 +47,7 @@ app.options("*", cors(corsOptions));
 app.use("/auth", authRoute);
 app.use("/admin", adminRoute);
 app.use("/client", clientRoute);
+app.use("/serviceProvider", servcieProviderRoute);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
