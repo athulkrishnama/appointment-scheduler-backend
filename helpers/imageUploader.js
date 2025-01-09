@@ -36,6 +36,37 @@ const uploadLogo = async (file) => {
     }
 };
 
+const uploadBanner = async (file) => {
+    try {
+        const imagelink = `banner/${Date.now()}`;
+        console.log("Starting upload with buffer size:", file.length);
+
+        const upload = new Upload({
+            client: s3,
+            params: {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: imagelink,
+                Body: file,
+                ContentType: file.mimetype || 'image/jpeg',
+            },
+       
+        });
+
+        const result = await upload.done();
+        return result.Location
+
+    } catch (error) {
+        console.error('Upload failed:', {
+            message: error.message,
+            code: error.code,
+            statusCode: error.$metadata?.httpStatusCode,
+            attempts: error.$metadata?.attempts
+        });
+        throw error;
+    }
+};
+
 module.exports = {
     uploadLogo,
+    uploadBanner
 };
