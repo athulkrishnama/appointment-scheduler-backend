@@ -75,9 +75,20 @@ const getService = async (req, res) => {
     res.status(500).json({ success: false, message: "Invalid Service" });
   }
 };
+
+const getClientDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if(!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Invalid User" });
+  }
+}
 module.exports = {
   getTopServices,
   getServices,
   getFilterData,
-  getService
+  getService,
+  getClientDetails
 };

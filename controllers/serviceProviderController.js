@@ -34,6 +34,7 @@ const addService = async (req, res) => {
 
 const getServices = async (req, res) => {
     try {
+        console.log("reqid", req.userId)
         const curPage = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const services = await Service.find({ serviceProvider: req.userId }).sort({ createdAt: -1 }).skip((curPage - 1) * limit).limit(limit);

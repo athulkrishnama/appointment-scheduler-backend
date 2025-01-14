@@ -144,13 +144,13 @@ const login = async (req, res) => {
       const accessToken = jwt.sign(
         { id: user._id, email: user.email , role: user.role},
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "5m" }
       );
 
       const refreshToken = jwt.sign(
         { id: user._id, email: user.email , role: user.role},
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: "30m" }
       );
 
       res.cookie("refreshToken", refreshToken, {
@@ -179,13 +179,13 @@ const login = async (req, res) => {
     const accessToken = jwt.sign(
       { id: user._id, email: user.email , role:user.role},
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "5m" }
     );
 
     const refreshToken = jwt.sign(
       { id: user._id, email: user.email , role:user.role},
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "1m" }
     );
 
     res.cookie("refreshToken", refreshToken, {
@@ -248,9 +248,9 @@ const refreshToken = async (req, res) => {
           return res.status(403).json({ success: false, message: "Unauthorized" });
         }
         const accessToken = jwt.sign(
-          { id: user._id, email: user.email },
+          { id: user._id, email: user.email , role:user.role},
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "15m" }
+          { expiresIn: "30m" }
         );
         return res.status(200).json({ success: true, accessToken });
       }
