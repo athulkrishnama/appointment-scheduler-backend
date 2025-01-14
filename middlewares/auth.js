@@ -11,8 +11,6 @@ const verifyToken =async (req, res, next) => {
     }
     req.userId = decoded.id;
     const user = await User.findById(req.userId);
-    console.log(user)
-    console.log("decoded", decoded.role)
     if(decoded.role !== user.role){
       return res.status(400).json({ success: false, message: 'You are not a ' + user.role });
     }
