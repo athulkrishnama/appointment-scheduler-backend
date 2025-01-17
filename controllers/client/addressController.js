@@ -13,13 +13,11 @@ const addAddress = async (req, res) => {
     };
     const address = new Address(addressData);
     await address.save();
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Address added successfully",
-        address: address,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Address added successfully",
+      address: address,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -27,7 +25,10 @@ const addAddress = async (req, res) => {
 
 const getAddresses = async (req, res) => {
   try {
-    const addresses = await Address.find({ client: req.userId });
+    const addresses = await Address.find({
+      client: req.userId,
+      isDeleted: false,
+    });
     res.status(200).json({ success: true, addresses });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -38,23 +39,60 @@ const editAddress = async (req, res) => {
   try {
     const { name: fullName, area, district, state, pincode, _id } = req.body;
     const address = await Address.findById(_id);
-    if(!address) return res.status(404).json({ success: false, message: "Address not found" })
-    if(address.client.toString() !== req.userId) return res.status(404).json({ success: false, message: "Address not found" })
+    if (!address)
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
+    if (address.client.toString() !== req.userId)
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
     address.fullName = fullName;
     address.area = area;
     address.district = district;
     address.state = state;
     address.pincode = pincode;
     await address.save();
-    res.status(200).json({ success: true, message: "Address updated successfully", address });
+    res.status(200).json({
+      success: true,
+      message: "Address updated successfully",
+      address,
+    });
   } catch (err) {
-    console.error(err)
-    res.status(500).json({success:false, message: err.message });
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id)
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
+    const address = await Address.findOne({ _id: id });
+    if (!address)
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
+    if (address.client.toString() !== req.userId)
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
+    address.isDeleted = true;
+    await address.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Address deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 module.exports = {
   addAddress,
   getAddresses,
-  editAddress
+  editAddress,
+  deleteAddress,
 };
