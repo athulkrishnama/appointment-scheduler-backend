@@ -25,6 +25,10 @@ const addressSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: [true, "User is required"],
+    },
+    isDeleted:{
+        type:mongoose.Schema.Types.Boolean,
+        default:false
     }
 });
 
