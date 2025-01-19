@@ -13,4 +13,9 @@ authRoute.post('/login', authController.login);
 authRoute.post('/google-signup', authController.googleSignup);
 
 authRoute.get('/refresh-token', authController.refreshToken);
+
+authRoute.post('/forgetPasswordOtp', authController.forgetPasswordOtp);
+authRoute.get('/resendForgetPasswordOtp', authController.resendForgetPasswordOtp)
+authRoute.post('/verifyForgetPasswordOtp', authController.verifyForgetPasswordOtp);
+authRoute.patch('/resetPassword', authController.resetPassword);
 module.exports = authRoute
