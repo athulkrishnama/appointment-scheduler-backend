@@ -7,8 +7,8 @@ const imageUploader = require("../helpers/imageUploader");
 const signup = async (req, res) => {
   try {
     try {
-
-      const { fullname, email, password,serviceDetails, role , phone} = req.body;
+      const { fullname, email, password, serviceDetails, role, phone } =
+        req.body;
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -29,13 +29,19 @@ const signup = async (req, res) => {
 
       console.log(`Email sent to ${email} otp: ${otp}`);
 
-      req.session.user = { fullname, email, password,serviceDetails:serviceDetails&&JSON.parse(serviceDetails), role, phone };
+      req.session.user = {
+        fullname,
+        email,
+        password,
+        serviceDetails: serviceDetails && JSON.parse(serviceDetails),
+        role,
+        phone,
+      };
       req.session.otp = otp;
-      req.session.otpExpiry = Date.now() +  60 * 1000; 
+      req.session.otpExpiry = Date.now() + 60 * 1000;
       req.session.imageBuffer = req.file?.buffer;
 
       res.status(200).json({ success: true, message: "Otp sent successfully" });
-
     } catch (error) {
       console.log(error);
       res
@@ -48,31 +54,25 @@ const signup = async (req, res) => {
   }
 };
 
-
-
 const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
     console.log(otp, req.session.otp);
 
     if (req.session.otp != otp) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid OTP" });
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
-    
+
     if (Date.now() > req.session.otpExpiry) {
-      return res
-        .status(400)
-        .json({ success: false, message: "OTP expired" });
+      return res.status(400).json({ success: false, message: "OTP expired" });
     }
 
     const user = req.session.user;
 
-    if(user.role === ROLES.SERVICE){
+    if (user.role === ROLES.SERVICE) {
       const imageBuffer = req.session.imageBuffer;
-      const imageLocation =await imageUploader.uploadLogo(imageBuffer);
-  
+      const imageLocation = await imageUploader.uploadLogo(imageBuffer);
+
       user.serviceDetails.logo = imageLocation;
     }
 
@@ -80,8 +80,9 @@ const verifyOtp = async (req, res) => {
     await newUser.save();
 
     req.session.destroy();
-    res.status(200).json({ success: true, message: "User created successfully" });
-
+    res
+      .status(200)
+      .json({ success: true, message: "User created successfully" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, message: "Failed to create user" });
@@ -90,11 +91,15 @@ const verifyOtp = async (req, res) => {
 
 const resendOtp = async (req, res) => {
   try {
-    if(!req.session.user){
-      return res.status(400).json({ success: false, message: "User not found" });
+    if (!req.session.user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
     }
-    if(req.session.otpExpiry > Date.now()){
-      return res.status(400).json({ success: false, message: "Otp not expired" });
+    if (req.session.otpExpiry > Date.now()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Otp not expired" });
     }
     const { email } = req.session.user;
     const otp = Math.floor(100000 + Math.random() * 900000);
@@ -106,49 +111,69 @@ const resendOtp = async (req, res) => {
     }
     console.log(`Email sent to ${email} otp: ${otp}`);
     req.session.otp = otp;
-    req.session.otpExpiry = Date.now() +  60 * 1000; 
-    res.status(200).json({ success: true, message: "Resended otp sent successfully" });
+    req.session.otpExpiry = Date.now() + 60 * 1000;
+    res
+      .status(200)
+      .json({ success: true, message: "Resended otp sent successfully" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, message: "Failed to resend otp" });
   }
-}
-
+};
 
 const login = async (req, res) => {
   try {
-    const { email, password, googleId , role} = req.body;
+    const { email, password, googleId, role } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     if (!user.isActive) {
-      return res.status(400).json({ success: false, message: "User is blocked" });
+      return res
+        .status(400)
+        .json({ success: false, message: "User is blocked" });
     }
-    if(user.role !== role){
-      return res.status(400).json({ success: false, message: "You are not a " + role });
+    if (user.role !== role) {
+      return res
+        .status(400)
+        .json({ success: false, message: "You are not a " + role });
     }
 
-    if(user.role === ROLES.SERVICE && user.serviceDetails.isAccepted === STATUSES.REJECTED){
-      return res.status(400).json({ success: false, message: "You are rejected by admin" });
+    if (
+      user.role === ROLES.SERVICE &&
+      user.serviceDetails.isAccepted === STATUSES.REJECTED
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "You are rejected by admin" });
     }
 
-    if(user.role === ROLES.SERVICE && user.serviceDetails.isAccepted === STATUSES.PENDING){
-      return res.status(400).json({ success: false, message: "Your request is pending" });
+    if (
+      user.role === ROLES.SERVICE &&
+      user.serviceDetails.isAccepted === STATUSES.PENDING
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Your request is pending" });
     }
-    if (user.googleId) {
-
-
+    if(user.googleId && !googleId){
+      return res
+        .status(400)
+        .json({ success: false, message: "Please login with google" });
+    }
+    if (user.googleId && googleId) {
       const accessToken = jwt.sign(
-        { id: user._id, email: user.email , role: user.role},
+        { id: user._id, email: user.email, role: user.role },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "15m" }
       );
 
       const refreshToken = jwt.sign(
-        { id: user._id, email: user.email , role: user.role},
+        { id: user._id, email: user.email, role: user.role },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: "1d" }
       );
@@ -156,7 +181,7 @@ const login = async (req, res) => {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       return res.status(200).json({
@@ -173,17 +198,19 @@ const login = async (req, res) => {
 
     const isPasswordValid = await user.validatePassword(password);
     if (!isPasswordValid) {
-      return res.status(400).json({ success: false, message: "Invalid password" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid password" });
     }
 
     const accessToken = jwt.sign(
-      { id: user._id, email: user.email , role:user.role},
+      { id: user._id, email: user.email, role: user.role },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
-      { id: user._id, email: user.email , role:user.role},
+      { id: user._id, email: user.email, role: user.role },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "1d" }
     );
@@ -211,7 +238,6 @@ const login = async (req, res) => {
   }
 };
 
-
 const googleSignup = async (req, res) => {
   try {
     const { fullname, email, role } = req.body;
@@ -223,12 +249,14 @@ const googleSignup = async (req, res) => {
     }
     const newUser = new User({ fullname, email, role, googleId: true });
     await newUser.save();
-    res.status(200).json({ success: true, message: "User created successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "User created successfully" });
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, message: "Failed to create user" });
   }
-}
+};
 
 const refreshToken = async (req, res) => {
   try {
@@ -245,10 +273,12 @@ const refreshToken = async (req, res) => {
         }
         const user = await User.findById(decoded.id);
         if (!user) {
-          return res.status(403).json({ success: false, message: "Unauthorized" });
+          return res
+            .status(403)
+            .json({ success: false, message: "Unauthorized" });
         }
         const accessToken = jwt.sign(
-          { id: user._id, email: user.email , role:user.role},
+          { id: user._id, email: user.email, role: user.role },
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: "1d" }
         );
@@ -257,9 +287,101 @@ const refreshToken = async (req, res) => {
     );
   } catch (err) {
     console.log(err);
-    res.status(500).json({ success: false, message: "Failed to refresh token" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to refresh token" });
   }
 };
 
+const forgetPasswordOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const emailsent = await sendMail(email, otp);
+    req.session.otp = otp;
+    req.session.otpExpiry = Date.now() + 60 * 1000;
+    req.session.email = email;
+    if (!emailsent) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to send email" });
+    }
+    console.log(`Email sent to ${email} otp: ${otp}`);
+    res.status(200).json({ success: true, message: "Otp sent successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Failed to generate otp" });
+  }
+};
 
-module.exports = { signup, verifyOtp, resendOtp, login, googleSignup , refreshToken};
+const resendForgetPasswordOtp = async (req, res) => {
+  try {
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const emailsent = await sendMail(req.session.email, otp);
+    req.session.otp = otp;
+    req.session.otpExpiry = Date.now() + 60 * 1000;
+    if (!emailsent) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to send email" });
+    }
+    console.log(`Email sent to ${req.session.email} otp: ${otp}`);
+    res.status(200).json({ success: true, message: "Otp sent successfully" });
+  } catch (error) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to generate otp" });
+  }
+};
+
+const verifyForgetPasswordOtp = async (req, res) => {
+  try {
+    if (req.session.otp !== req.body.otp) {
+      return res.status(400).json({ success: false, message: "Invalid otp" });
+    }
+    if(Date.now() > req.session.otpExpiry) {
+      return res.status(400).json({success: false, message: "Otp expired"})
+    }
+    req.session.otpVerified = true;
+    res
+      .status(200)
+      .json({ success: true, message: "Otp verified successfully" });
+  } catch (error) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Failed to verify otp" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const {password, email} = req.body;
+    if(!req.session.otpVerified || !password || !email) {
+      return res.status(400).json({success: false, message: "Missing credentials"})
+    }
+
+    const user = await User.findOne({email});
+    if(!user) return res.status(404).json({success: false, message: "User not found"})
+    user.password = password;
+    await user.save();
+    res.status(200).json({success: true, message: "Password reset successfully"})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({success: false, message: "Failed to reset password"})
+  }
+}
+module.exports = {
+  signup,
+  verifyOtp,
+  resendOtp,
+  login,
+  googleSignup,
+  refreshToken,
+  forgetPasswordOtp,
+  resendForgetPasswordOtp,
+  verifyForgetPasswordOtp,
+  resetPassword
+};
