@@ -1,17 +1,17 @@
-const mongoose = require('mongoose');
-const ROLES = require('../constants/roles');
-const STATUSES = require('../constants/statuses');
-const bcrypt = require('bcrypt')
+const mongoose = require("mongoose");
+const ROLES = require("../constants/roles");
+const STATUSES = require("../constants/statuses");
+const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema(
   {
     fullname: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, "Name is required"],
       trim: true,
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
     },
     password: {
@@ -21,20 +21,20 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     googleId: {
-        type: Boolean,
+      type: Boolean,
     },
     role: {
       type: String,
-      required: [true, 'Role is required'],
+      required: [true, "Role is required"],
       enum: Object.values(ROLES),
     },
     serviceDetails: {
       type: new mongoose.Schema({
-        _id:false,
-        isAccepted:{
-            type: String,
-            enum: Object.values(STATUSES),
-            default: STATUSES.PENDING,
+        _id: false,
+        isAccepted: {
+          type: String,
+          enum: Object.values(STATUSES),
+          default: STATUSES.PENDING,
         },
         description: {
           type: String,
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
         servicesOffered: [
           {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Service', 
+            ref: "Service",
           },
         ],
         logo: {
@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema(
       }),
       default: null,
       required: function () {
-        return this.role === ROLES.SERVICE; 
+        return this.role === ROLES.SERVICE;
       },
     },
     isActive: {
@@ -66,8 +66,19 @@ const userSchema = new mongoose.Schema(
 );
 
 // Hash password before saving the user
-userSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const existingUser = await this.constructor.findOne({ _id: this._id });
+    if (existingUser) {
+      const samePass = await bcrypt.compare(
+        this.password,
+        existingUser?.password
+      );
+
+      if (samePass) {
+        throw new Error("Password cannot be same as old password");
+      }
+    }
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
@@ -78,4 +89,4 @@ userSchema.methods.validatePassword = async function (inputPassword) {
   return await bcrypt.compare(inputPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);
