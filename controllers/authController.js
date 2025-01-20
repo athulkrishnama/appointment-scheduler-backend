@@ -373,6 +373,22 @@ const resetPassword = async (req, res) => {
     res.status(500).json({success: false, message: "Failed to reset password"})
   }
 }
+
+const updatePassword = async (req, res)=>{
+  try {
+    const {currentPassword, newPassword} = req.body;
+    const user = await User.findById(req.userId);
+    if(!user) return res.status(404).json({success: false, message: "User not found"})
+    const isPasswordValid = await user.validatePassword(currentPassword);
+    if(!isPasswordValid) return res.status(400).json({success: false, message: "Invalid current password"})
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({success: true, message: "Password updated successfully"})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({success:false, message:error.message ||"Failed to update password" })
+  }
+}
 module.exports = {
   signup,
   verifyOtp,
@@ -383,5 +399,6 @@ module.exports = {
   forgetPasswordOtp,
   resendForgetPasswordOtp,
   verifyForgetPasswordOtp,
-  resetPassword
+  resetPassword,
+  updatePassword
 };

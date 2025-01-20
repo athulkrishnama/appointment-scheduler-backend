@@ -3,6 +3,8 @@ const authRoute = express.Router();
 const authController = require('../controllers/authController');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
+const {verifyToken} = require('../middlewares/auth');
+const { verify } = require('jsonwebtoken');
 
 authRoute.post('/signup',  upload.single('logo'), authController.signup);
 authRoute.post('/verify-otp', authController.verifyOtp);
@@ -18,4 +20,5 @@ authRoute.post('/forgetPasswordOtp', authController.forgetPasswordOtp);
 authRoute.get('/resendForgetPasswordOtp', authController.resendForgetPasswordOtp)
 authRoute.post('/verifyForgetPasswordOtp', authController.verifyForgetPasswordOtp);
 authRoute.patch('/resetPassword', authController.resetPassword);
+authRoute.patch('/updatePassword',verifyToken, authController.updatePassword);
 module.exports = authRoute
