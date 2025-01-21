@@ -64,7 +64,32 @@ const uploadBanner = async (file) => {
     }
 };
 
+const uploadDocument = async (file)=>{
+    try{
+        const imagelink = `document/${Date.now()}`;
+        console.log("uploading document")
+        console.log(file)
+        const buffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data);
+        const upload = new Upload({
+            client: s3,
+            params: {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: imagelink,
+                Body: buffer,
+                ContentType: file.mimetype || 'image/jpeg',
+            },
+       
+        });
+        const result = await upload.done();
+        return result.Location
+    }catch(err){
+        console.error("Upload failed",err)
+        throw err
+    }
+}
+
 module.exports = {
     uploadLogo,
-    uploadBanner
+    uploadBanner,
+    uploadDocument
 };

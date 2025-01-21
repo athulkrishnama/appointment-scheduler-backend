@@ -6,7 +6,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 const {verifyToken} = require('../middlewares/auth');
 const { verify } = require('jsonwebtoken');
 
-authRoute.post('/signup',  upload.single('logo'), authController.signup);
+authRoute.post('/signup',  upload.fields([
+    {name:'logo', maxCount:1},
+    {name:'document', maxCount:1}
+]), authController.signup);
 authRoute.post('/verify-otp', authController.verifyOtp);
 authRoute.get('/resend-otp', authController.resendOtp);
 

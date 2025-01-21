@@ -39,7 +39,11 @@ const signup = async (req, res) => {
       };
       req.session.otp = otp;
       req.session.otpExpiry = Date.now() + 60 * 1000;
-      req.session.imageBuffer = req.file?.buffer;
+      const logo = req.files.logo[0];
+      const document = req.files.document[0];
+      req.session.logo = logo.buffer
+      req.session.document = document.buffer
+      
 
       res.status(200).json({ success: true, message: "Otp sent successfully" });
     } catch (error) {
@@ -70,10 +74,13 @@ const verifyOtp = async (req, res) => {
     const user = req.session.user;
 
     if (user.role === ROLES.SERVICE) {
-      const imageBuffer = req.session.imageBuffer;
-      const imageLocation = await imageUploader.uploadLogo(imageBuffer);
+      const logo = req.session.logo;
+      const document = req.session.document;
+      const logoLink = await imageUploader.uploadLogo(logo);
+      const documentLink = await imageUploader.uploadDocument(document)
 
-      user.serviceDetails.logo = imageLocation;
+      user.serviceDetails.logo = logoLink;
+      user.serviceDetails.document = documentLink;
     }
 
     const newUser = new User(user);
