@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
         logo: {
           type: String,
         },
+        document:{
+          type: String
+        }
+        ,
       }),
       default: null,
       required: function () {
