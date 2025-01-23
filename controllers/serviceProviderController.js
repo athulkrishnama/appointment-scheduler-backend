@@ -1,8 +1,8 @@
 const Service = require("../models/services");
 const User = require("../models/user");
 const {uploadBanner} = require("../helpers/imageUploader")
-
-
+const ROLES = require('../constants/roles')
+const {uploadLogo} = require("../helpers/imageUploader")
 const addService = async (req, res) => {
     try {
         const { serviceName, serviceDescription, category, additionalDetails } = req.body;
@@ -86,9 +86,49 @@ const updateService = async (req, res) => {
         return res.status(500).json({success: false, message: "Server Error" });
     }
 };
+
+const getServiceProviderDetails = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({success: false, message: "User not found" });
+        }
+        if(user.isActive === false){
+            return res.status(400).json({success: false, message: "User is blocked." });
+        }
+        if(user.role !== ROLES.SERVICE){
+            return res.status(400).json({success: false, message: "You are not a service provider." });
+        }
+        res.status(200).json({success: true, user });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({sucess:false, message:"Failed to get user details" })
+    }
+}
+
+const updateLogo = async (req,res)=>{
+    try {
+        const file = {data:req.file.buffer};
+        const imagelink = await uploadLogo(file);
+        console.log(imagelink)
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({success: false, message: "User not found" });
+        }
+        user.serviceDetails.logo = imagelink;
+        await user.save();
+        res.status(200).json({success: true, message: "Logo updated successfully", user });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({success:false, message:"Failed to update logo" })
+    }
+}
 module.exports = {
     addService,
     getServices,
     updateServiceStatus,
-    updateService
+    updateService,
+    getServiceProviderDetails,
+    updateLogo
 };
