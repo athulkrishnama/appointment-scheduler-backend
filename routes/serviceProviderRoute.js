@@ -17,5 +17,5 @@ serviceProviderRoute.put("/updateService/:id", verifyToken, upload.single('image
 // profile management
 serviceProviderRoute.get('/getServiceProviderDetails', verifyToken, serviceProviderController.getServiceProviderDetails)
 serviceProviderRoute.patch('/updateLogo', verifyToken, upload.single('logo'), serviceProviderController.updateLogo)
-
+serviceProviderRoute.put('/updateServiceProviderDetails', verifyToken, serviceProviderController.updateServiceProviderDetails)
 module.exports = serviceProviderRoute
