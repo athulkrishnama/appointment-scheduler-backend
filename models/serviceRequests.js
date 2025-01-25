@@ -51,7 +51,7 @@ const serviceRequestSchema = new mongoose.Schema(
         }
       },
     ],
-    recrringEndDate: {
+    recurringEndDate: {
       type: Date,
     },
     serviceFrequency: {
