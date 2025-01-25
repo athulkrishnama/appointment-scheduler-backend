@@ -23,7 +23,7 @@ const getServices = async (req, res) => {
     const search = req.query.search || '';
     const category = req.query.category || '';
     const serviceProviders = req.query.serviceProvider || '';
-    const sortBy = req.query.sortBy || '';
+    const sortBy = req.query.sortBy || 'A to Z';
     const filters = {};
     if (search) {
       filters.$or = [
@@ -48,7 +48,22 @@ const getServices = async (req, res) => {
       }
     }
     const skip = (page - 1) * limit;
-    const services = await Service.find({ isActive: true, ...filters }).sort(sort).skip(skip).limit(limit);
+    const services = await Service.aggregate([
+      { $match: { isActive: true, ...filters } }, 
+      {
+        $lookup: {
+          from: 'categories', 
+          localField: 'category', 
+          foreignField: '_id', 
+          as: 'category',
+        },
+      },
+      { $unwind: '$category' }, 
+      { $match: { 'category.isActive': true } },
+      { $sort: sort },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
     const totalPage = Math.ceil(await Service.countDocuments({ isActive: true, ...filters }) / limit);
     res.status(200).json({ success: true, services, curPage: page, totalPages: totalPage });
   } catch (error) {
