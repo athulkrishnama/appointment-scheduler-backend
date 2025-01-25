@@ -1,8 +1,8 @@
-const Service = require("../models/services");
-const User = require("../models/user");
-const { uploadBanner } = require("../helpers/imageUploader");
-const ROLES = require("../constants/roles");
-const { uploadLogo } = require("../helpers/imageUploader");
+const Service = require("../../models/services");
+const User = require("../../models/user");
+const { uploadBanner } = require("../../helpers/imageUploader");
+const ROLES = require("../../constants/roles");
+const { uploadLogo } = require("../../helpers/imageUploader");
 const addService = async (req, res) => {
   try {
     const { serviceName, serviceDescription, category, additionalDetails } =
