@@ -21,7 +21,8 @@ clientRoute.put('/updateProfile', verifyToken, clientController.updateProfile);
 
 
 // service Request Route
-clientRoute.post('/serviceRequest',verifyToken,serviceRequestController.serviceRequest)
+clientRoute.post('/serviceRequest',verifyToken,serviceRequestController.serviceRequest);
+clientRoute.get('/getServiceRequests',verifyToken,serviceRequestController.getServiceRequests);
 
 // address Route
 clientRoute.post('/addAddress',verifyToken,addressController.addAddress)
