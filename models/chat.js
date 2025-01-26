@@ -21,8 +21,12 @@ const chatSchema = new mongoose.Schema({
             },
             message: 'Message must be a string or a valid reference to a quotation model.'
         },
-        ref: 'Quotation',
-        autopopulate: true
+        ref: function() {
+            return this.messageType !== 'text' ? 'Quotation' : null;
+        },
+        autopopulate: function() {
+            return this.messageType !== 'text';
+        }
     },
     sender: {
         type:String,
@@ -38,5 +42,7 @@ const chatSchema = new mongoose.Schema({
     // }
 
 }, { timestamps: true });
+
+// chatSchema.plugin(require('mongoose-autopopulate'));
 
 module.exports = mongoose.model("Chat", chatSchema);
