@@ -23,4 +23,7 @@ serviceProviderRoute.put('/updateServiceProviderDetails', verifyToken, servicePr
 
 // service requests
 serviceProviderRoute.get('/getServiceRequests', verifyToken, ServiceRequestController.getServiceRequests)
+serviceProviderRoute.get('/getServiceRequest/:id', verifyToken, ServiceRequestController.getServiceRequest)
+serviceProviderRoute.post('/createQuotation/:id', verifyToken, ServiceRequestController.createQuotation)
+serviceProviderRoute.get('/getChat/:id', verifyToken, ServiceRequestController.getChat)
 module.exports = serviceProviderRoute
