@@ -1,5 +1,5 @@
 const ServiceRequest = require('../../models/serviceRequests');
-const Quotation = require('../../models/quotations');
+const Quotation = require('../../models/Quotations');
 const Chat = require('../../models/chat');
 const types = require('../../constants/chatType');
 const sender = require('../../constants/sender');
@@ -80,9 +80,28 @@ const getChat = async (req, res) => {
     }
 }
 
+const textMessage = async (req, res) => {
+    try {
+        const requestId = req.params.id;
+        const message = req.body.message;
+        const chat = await new Chat({
+            messageType: types.text,
+            message,
+            serviceRequest: requestId,
+            sender: req.body.sender === "client" ? sender.client : sender.serviceProvider
+        });
+        await chat.save();
+        res.status(200).json({ success: true, message: "Text message sent" , chat });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Failed to send text message" });
+    }
+}
+
 module.exports = {
     getServiceRequests,
     getServiceRequest,
     createQuotation,
-    getChat
+    getChat,
+    textMessage
 }
