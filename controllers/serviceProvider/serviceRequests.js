@@ -3,6 +3,7 @@ const Quotation = require('../../models/Quotations');
 const Chat = require('../../models/chat');
 const types = require('../../constants/chatType');
 const sender = require('../../constants/sender');
+const Appointment = require('../../models/appointment');
 
 const getServiceRequests = async (req, res) => {
     try {
@@ -30,7 +31,9 @@ const getServiceRequest = async (req, res) => {
         const serviceRequestId = req.params.id;
         const serviceRequest = await ServiceRequest.findById(serviceRequestId).populate([{
             path: 'service',
-            // match: { serviceProvider: serviceProvider }
+            populate: {
+                path: 'serviceProvider'
+            }
         },{
             path: 'client'
         },{
@@ -102,7 +105,13 @@ const acceptQuotation = async (req, res) => {
         const requestId = req.params.id;
         const quotationId = req.body.quotation;
         const quotation = await Quotation.findById(quotationId);
-        const serviceRequest = await ServiceRequest.findById(requestId);
+        const serviceRequest = await ServiceRequest.findById(requestId).populate([{
+            path: 'service',
+        },{
+            path: 'client'
+        },{
+            path: 'address'
+        }]);
         if(!quotation || !serviceRequest){
             return res.status(404).json({ success: false, message: "Quotation or service request not found" });
         }
@@ -111,6 +120,17 @@ const acceptQuotation = async (req, res) => {
         quotation.status = "accepted";
         await serviceRequest.save();
         await quotation.save();
+        const appointment = new Appointment({
+            serviceRequest: serviceRequest._id,
+            client: serviceRequest.client,
+            service: serviceRequest.service,
+            date: serviceRequest.date,
+            time: serviceRequest.time,
+            additionalNotes: serviceRequest.additionalNotes,
+            dditionalDetails: serviceRequest.service.additionalDetails,
+            address: serviceRequest.address
+        });
+        await appointment.save();
         res.status(200).json({ success: true, message: "Quotation accepted" });
     } catch (error) {
         console.log(error);
