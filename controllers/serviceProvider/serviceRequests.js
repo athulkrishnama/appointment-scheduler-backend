@@ -9,19 +9,16 @@ const getServiceRequests = async (req, res) => {
         const serviceProvider = req.userId;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
-        const serviceRequests = await ServiceRequest.find().populate([{
+        const serviceRequests = await ServiceRequest.find({status:'pending'}).populate([{
             path: 'service',
             match: { serviceProvider: serviceProvider }
         },{
             path: 'client'
         }]).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
-        const totalServiceRequests = await ServiceRequest.find().populate({
-            path: 'service',
-            match: { serviceProvider: serviceProvider }
-        });
-        const totalPages = Math.ceil(totalServiceRequests.length / limit);
-        res.status(200).json({ success: true, serviceRequests, totalPages });
+        const filteredServiceRequests = serviceRequests.filter(request => request.service?.serviceProvider);
+        const totalPages = Math.ceil(filteredServiceRequests.length / limit);
+        res.status(200).json({ success: true, serviceRequests: filteredServiceRequests, totalPages });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: "Failed to get service requests" });
@@ -36,6 +33,8 @@ const getServiceRequest = async (req, res) => {
             // match: { serviceProvider: serviceProvider }
         },{
             path: 'client'
+        },{
+            path: 'address'
         }]);
         res.status(200).json({ success: true, serviceRequest });
     } catch (error) {
@@ -98,10 +97,32 @@ const textMessage = async (req, res) => {
     }
 }
 
+const acceptQuotation = async (req, res) => {
+    try {
+        const requestId = req.params.id;
+        const quotationId = req.body.quotation;
+        const quotation = await Quotation.findById(quotationId);
+        const serviceRequest = await ServiceRequest.findById(requestId);
+        if(!quotation || !serviceRequest){
+            return res.status(404).json({ success: false, message: "Quotation or service request not found" });
+        }
+        serviceRequest.quotation = quotationId;
+        serviceRequest.status = "accepted";
+        quotation.status = "accepted";
+        await serviceRequest.save();
+        await quotation.save();
+        res.status(200).json({ success: true, message: "Quotation accepted" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Failed to accept quotation" });
+    }
+}
+
 module.exports = {
     getServiceRequests,
     getServiceRequest,
     createQuotation,
     getChat,
-    textMessage
+    textMessage,
+    acceptQuotation
 }
