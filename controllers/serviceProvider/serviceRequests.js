@@ -127,8 +127,10 @@ const acceptQuotation = async (req, res) => {
             date: serviceRequest.date,
             time: serviceRequest.time,
             additionalNotes: serviceRequest.additionalNotes,
-            dditionalDetails: serviceRequest.service.additionalDetails,
-            address: serviceRequest.address
+            additionalDetails: serviceRequest.additionalDetails,
+            address: serviceRequest.address,
+            serviceProvider: serviceRequest.service.serviceProvider,
+            client: serviceRequest.client
         });
         await appointment.save();
         res.status(200).json({ success: true, message: "Quotation accepted" });
