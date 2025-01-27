@@ -7,6 +7,16 @@ const appointmentSchema = new mongoose.Schema({
         required: true,
         autopopulate: true
     },
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    serviceProvider: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
     date: {
         type: Date,
         required: true,
