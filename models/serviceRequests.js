@@ -7,6 +7,23 @@ const serviceRequestSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "rejected"],
       default: "pending",
     },
+    quotation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Quotation",
+        required: ()=>{
+          if(this.status === "accepted"){
+            return true;
+          }
+          return false;
+        },
+        autopopulate: ()=>{
+          if(this.status === "accepted"){
+            return true;
+          }
+          return false;
+        }
+    }
+    ,
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -2,6 +2,7 @@ const User = require("../models/user");
 const Service = require("../models/services");
 const STATUSES = require("../constants/statuses");
 const ROLES = require("../constants/roles");
+const Appointment = require("../models/appointment");
 
 const serviceProviderRequests = async (req, res) => {
     try {
@@ -110,6 +111,19 @@ const getServices = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to fetch services" });
     }
 };
+
+const getDashboardData = async (req, res) => {
+    try {
+        const activeServiceProviders = await User.countDocuments({ "role": ROLES.SERVICE , 'serviceDetails.isAccepted':STATUSES.ACCEPTED});
+        const activeClients = await User.countDocuments({ "role": ROLES.CLIENT });
+        const totalServices = await Service.countDocuments();
+        const totalAppointments = await Appointment.countDocuments();
+        res.status(200).json({ success: true, activeServiceProviders, activeClients, totalServices, totalAppointments });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Failed to fetch data" });
+    }
+}
 module.exports = {
     serviceProviderRequests,
     updateRequestStatus,
@@ -117,5 +131,6 @@ module.exports = {
     updateClientStatus,
     getServiceProvider,
     updateServiceProviderStatus,
-    getServices
+    getServices,
+    getDashboardData
 };

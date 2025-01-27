@@ -60,6 +60,16 @@ const getServices = async (req, res) => {
       },
       { $unwind: '$category' }, 
       { $match: { 'category.isActive': true } },
+      {
+        $lookup: {
+          from: 'users', 
+          localField: 'serviceProvider', 
+          foreignField: '_id', 
+          as: 'serviceProvider',
+        },
+      },
+      { $unwind: '$serviceProvider' }, 
+      { $match: { 'serviceProvider.role': ROLE.SERVICE, 'serviceProvider.isActive': true, 'serviceProvider.serviceDetails.isAccepted': STATUSES.ACCEPTED } },
       { $sort: sort },
       { $skip: skip },
       { $limit: limit },

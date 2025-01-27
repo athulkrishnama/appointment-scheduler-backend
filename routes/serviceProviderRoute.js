@@ -2,6 +2,7 @@ const express = require("express");
 const serviceProviderRoute = express.Router();
 const serviceProviderController = require("../controllers/serviceProvider/serviceProviderController");
 const ServiceRequestController = require("../controllers/serviceProvider/serviceRequests");
+const appointmentController = require("../controllers/serviceProvider/appointmentController");
 const {verifyToken} = require("../middlewares/auth")
 const multer = require('multer');
 const serviceRequests = require("../models/serviceRequests");
@@ -23,4 +24,13 @@ serviceProviderRoute.put('/updateServiceProviderDetails', verifyToken, servicePr
 
 // service requests
 serviceProviderRoute.get('/getServiceRequests', verifyToken, ServiceRequestController.getServiceRequests)
+serviceProviderRoute.get('/getServiceRequest/:id', verifyToken, ServiceRequestController.getServiceRequest)
+serviceProviderRoute.post('/createQuotation/:id', verifyToken, ServiceRequestController.createQuotation)
+serviceProviderRoute.post('/textMessage/:id', verifyToken, ServiceRequestController.textMessage)
+serviceProviderRoute.get('/getChat/:id', verifyToken, ServiceRequestController.getChat)
+serviceProviderRoute.post('/acceptQuotation/:id', verifyToken, ServiceRequestController.acceptQuotation)
+
+// appointments
+serviceProviderRoute.get('/getAppointments', verifyToken, appointmentController.getAppointments)
+
 module.exports = serviceProviderRoute
