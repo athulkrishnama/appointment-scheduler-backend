@@ -27,4 +27,6 @@ serviceProviderRoute.get('/getServiceRequest/:id', verifyToken, ServiceRequestCo
 serviceProviderRoute.post('/createQuotation/:id', verifyToken, ServiceRequestController.createQuotation)
 serviceProviderRoute.post('/textMessage/:id', verifyToken, ServiceRequestController.textMessage)
 serviceProviderRoute.get('/getChat/:id', verifyToken, ServiceRequestController.getChat)
+serviceProviderRoute.post('/acceptQuotation/:id', verifyToken, ServiceRequestController.acceptQuotation)
+
 module.exports = serviceProviderRoute
