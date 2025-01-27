@@ -17,8 +17,13 @@ const getServiceRequests = async (req, res)=>{
         const client = req.userId;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
-        const serviceRequests = await ServiceRequest.find({client}).sort({createdAt:-1}).skip((page - 1) * limit).limit(limit).populate('service');
-        const totalPages = Math.ceil((await ServiceRequest.countDocuments({client}))/limit);
+        const serviceRequests = await ServiceRequest.find({client, status:'pending'}).sort({createdAt:-1}).skip((page - 1) * limit).limit(limit).populate({
+            path: 'service',
+            populate: {
+              path: 'serviceProvider', 
+            }
+          });
+        const totalPages = Math.ceil((await ServiceRequest.countDocuments({client, status:'pending'}))/limit);
         res.status(200).json({ success: true, serviceRequests, totalPages });
     } catch (error) {
         console.log(error);
