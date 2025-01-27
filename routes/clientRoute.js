@@ -4,6 +4,8 @@ const {verifyToken} = require('../middlewares/auth')
 const clientController = require('../controllers/client/clientController')
 const serviceRequestController = require('../controllers/client/serviceRequestController')
 const addressController = require('../controllers/client/addressController')
+const appointmentController = require('../controllers/client/appointmentController')
+
 
 
 clientRoute.get('/getTopServices', clientController.getTopServices)
@@ -29,4 +31,7 @@ clientRoute.post('/addAddress',verifyToken,addressController.addAddress)
 clientRoute.get('/getAddresses',verifyToken,addressController.getAddresses)
 clientRoute.put('/editAddress',verifyToken,addressController.editAddress)
 clientRoute.delete('/deleteAddress/:id',verifyToken,addressController.deleteAddress)
+
+// appointment Route
+clientRoute.get('/getAppointments',verifyToken,appointmentController.getAppointments)
 module.exports = clientRoute
