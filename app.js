@@ -10,6 +10,14 @@ const clientRoute = require("./routes/clientRoute");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const initializeSocket = require("./services/socketService");
+const http = require("http");
+
+// createing srver for chat
+const server = http.createServer(app);
+
+initializeSocket(server);
+
 require("./config/s3");
 dotenv.config();
 
@@ -59,6 +67,6 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
