@@ -4,6 +4,7 @@ const Chat = require('../../models/chat');
 const types = require('../../constants/chatType');
 const sender = require('../../constants/sender');
 const Appointment = require('../../models/appointment');
+const STATUSES = require('../../constants/statuses');
 
 const getServiceRequests = async (req, res) => {
     try {
@@ -75,6 +76,10 @@ const getChat = async (req, res) => {
     try {
         const requestId = req.params.id;
         const chat = await Chat.find({ serviceRequest: requestId }).populate('message');
+        const serviceRequest = await ServiceRequest.findById(requestId);
+        if(serviceRequest.status === STATUSES.ACCEPTED){
+            return res.status(400).json({ success: false, message: "Service request already accepted" });
+        }
         res.status(200).json({ success: true, chat });
     } catch (error) {
         console.log(error);
