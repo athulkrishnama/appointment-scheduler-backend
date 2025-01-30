@@ -48,7 +48,6 @@ const getServices = async (req, res) => {
         sort.serviceName = -1
       }
     }
-    console.log(filters)
     const skip = (page - 1) * limit;
     const services =await  Service.aggregate([
       { $match: { isActive: true, ...filters } }, 
