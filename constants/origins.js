@@ -1,6 +1,6 @@
 const ORIGIN = {
-    client:'http://localhost:5173',
-    service:'http://localhost:5174',
-    admin:'http://localhost:5175',
+    client:process.env.CLIENT_ORIGIN,
+    service:process.env.SERVICE_PROVIDER,
+    admin:process.env.ADMIN,
 }
 module.exports = ORIGIN;
