@@ -3,6 +3,7 @@ const Service = require('../../models/services');
 const STATUSES = require('../../constants/statuses');
 const Category = require('../../models/category');
 const ROLE = require('../../constants/roles');
+const mongoose = require('mongoose')
 // Controller to fetch top 10 services
 const getTopServices = async (req, res) => {
   try {
@@ -33,10 +34,10 @@ const getServices = async (req, res) => {
     }
 
     if (category) {
-      filters.category = { $in: category.split(',') };
+      filters.category = { $in: category.split(',').map(item=> new mongoose.Types.ObjectId(item)) };
     }
     if (serviceProviders) {
-      filters.serviceProvider = { $in: serviceProviders.split(',') };
+      filters.serviceProvider = { $in: serviceProviders.split(',').map(item=> new  mongoose.Types.ObjectId(item)) };
     }
 
     const sort = {}
@@ -47,8 +48,9 @@ const getServices = async (req, res) => {
         sort.serviceName = -1
       }
     }
+    console.log(filters)
     const skip = (page - 1) * limit;
-    const services = await Service.aggregate([
+    const services =await  Service.aggregate([
       { $match: { isActive: true, ...filters } }, 
       {
         $lookup: {
