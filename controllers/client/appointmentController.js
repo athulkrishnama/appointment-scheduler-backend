@@ -1,4 +1,5 @@
 const Appointment = require('../../models/appointment');
+const ROLES = require('../../constants/roles');
 
 const getAppointments = async (req, res) => {
     try {
@@ -26,8 +27,12 @@ const cancelAppointment = async (req, res) => {
         if(appointment.client.toString() !== req.userId){
             return res.status(403).json({ success: false, message: "You are not authorized to cancel this appointment" });
         }
+        if (appointment.status === 'cancelled') {
+            return res.status(400).json({ success: false, message: "Appointment is already cancelled" });
+        }
         appointment.status = 'cancelled';
         appointment.cancellationReason = reason;
+        appointment.cancelledBy = ROLES.CLIENT;
         await appointment.save();
         res.status(200).json({ success: true, message: "Appointment cancelled successfully" });
     } catch (error) {
