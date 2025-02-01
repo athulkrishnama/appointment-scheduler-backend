@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const ROLES = require("../constants/roles");
 const appointmentSchema = new mongoose.Schema({
     serviceRequest: {
         type: mongoose.Schema.Types.ObjectId,
@@ -33,6 +33,11 @@ const appointmentSchema = new mongoose.Schema({
     },
     cancellationReason: {
         type: String,
+        required: ()=>this.status === "cancelled",
+    },
+    cancelledBy: {
+        type:String,
+        enum: [ROLES.CLIENT, ROLES.SERVICE],
         required: ()=>this.status === "cancelled",
     },
     additionalNotes: {
