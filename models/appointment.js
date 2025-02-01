@@ -31,6 +31,10 @@ const appointmentSchema = new mongoose.Schema({
         default: "pending",
         required: true,
     },
+    cancellationReason: {
+        type: String,
+        required: ()=>this.status === "cancelled",
+    },
     additionalNotes: {
         type: String,
         required: true,
