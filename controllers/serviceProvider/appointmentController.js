@@ -7,7 +7,7 @@ const getAppointments = async (req, res) => {
             .populate('service')
             .populate('client', 'fullname email phone')
             .populate('address')
-            .sort({ date: -1, time: 1 });
+            .sort({ date: -1, time: -1 });
         
         res.status(200).json({ success: true, appointments });
     } catch (error) {

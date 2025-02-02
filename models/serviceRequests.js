@@ -47,6 +47,11 @@ const serviceRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    RequestedAt: {
+      type: Date,
+      default: Date.now,
+      
+    },
     additionalNotes: {
       type: String,
       required: true,

@@ -3,7 +3,7 @@ const serviceRequest =async (req, res)=>{
     try{
         const {address, service, date, time, additionalNotes, additionalDetails, endDate, serviceFrequency} = req.body;
         const client = req.userId;
-        const serviceRequest = new ServiceRequest({address, service, date, time, additionalNotes, additionalDetails, recurringEndDate:endDate, serviceFrequency, client});
+        const serviceRequest = new ServiceRequest({address, service, date, time, additionalNotes, additionalDetails, recurringEndDate:endDate, serviceFrequency, client, requestedAt:Date.now()});
         await serviceRequest.save();
         res.status(201).json({ success: true, message: "Service request created successfully", serviceRequest });
     }catch(err){
