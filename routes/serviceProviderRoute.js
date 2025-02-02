@@ -33,5 +33,6 @@ serviceProviderRoute.post('/acceptQuotation/:id', verifyToken, ServiceRequestCon
 // appointments
 serviceProviderRoute.get('/getAppointments', verifyToken, appointmentController.getAppointments)
 serviceProviderRoute.patch('/cancelAppointment/:id', verifyToken, appointmentController.cancelAppointment)
+serviceProviderRoute.patch('/markAsCompleted/:id', verifyToken, appointmentController.markAsCompleted)
 
 module.exports = serviceProviderRoute
