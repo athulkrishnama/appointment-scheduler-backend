@@ -3,12 +3,16 @@ const ROLES = require('../../constants/roles');
 
 const getAppointments = async (req, res) => {
     try {
-        const appointments = await Appointment.find({ client: req.userId })
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.limit== 'all'? null : parseInt(req.query.limit) || 5;
+        const appointments = await Appointment.find({ client: req.userId, status: 'pending' })
             .populate('service')
             .populate('serviceProvider')
-            .sort({ date: -1 });
-        
-        res.status(200).json({ success: true, appointments });
+            .sort({ date: -1 })
+            .skip((page - 1) * (limit || 5))
+            .limit(limit);
+        const totalPages = Math.ceil((await Appointment.countDocuments({ client: req.userId, status: 'pending' })) / (limit || 5));
+        res.status(200).json({ success: true, appointments, totalPages });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Internal server error" });
