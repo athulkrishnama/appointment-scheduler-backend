@@ -1,0 +1,2 @@
+const COMMISION_PERCENTAGE = 0.05;
+module.exports = COMMISION_PERCENTAGE;
