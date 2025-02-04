@@ -32,6 +32,7 @@ serviceProviderRoute.post('/acceptQuotation/:id', verifyToken, ServiceRequestCon
 
 // appointments
 serviceProviderRoute.get('/getAppointments', verifyToken, appointmentController.getAppointments)
+serviceProviderRoute.get("/getCompletedAppointments", verifyToken, appointmentController.getCompletedAppointments);
 serviceProviderRoute.patch('/cancelAppointment/:id', verifyToken, appointmentController.cancelAppointment)
 serviceProviderRoute.patch('/markAsCompleted/:id', verifyToken, appointmentController.markAsCompleted)
 

@@ -34,6 +34,7 @@ clientRoute.delete('/deleteAddress/:id',verifyToken,addressController.deleteAddr
 
 // appointment Route
 clientRoute.get('/getAppointments',verifyToken,appointmentController.getAppointments)
+clientRoute.get('/getCompletedAppointments', verifyToken, appointmentController.getCompletedAppointments);
 clientRoute.patch('/cancelAppointment/:id',verifyToken,appointmentController.cancelAppointment)
 
 module.exports = clientRoute
