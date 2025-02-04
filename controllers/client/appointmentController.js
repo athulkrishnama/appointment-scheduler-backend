@@ -45,7 +45,26 @@ const cancelAppointment = async (req, res) => {
     }
 }
 
+const getCompletedAppointments = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = req.query.limit === 'all' ? null : parseInt(req.query.limit) || 5;
+        const appointments = await Appointment.find({ client: req.userId, status: { $in: ['completed', 'cancelled'] } })
+            .populate('service')
+            .populate('serviceProvider')
+            .sort({ date: -1 })
+            .skip((page - 1) * (limit || 5))
+            .limit(limit);
+        const totalPages = Math.ceil((await Appointment.countDocuments({ client: req.userId, status: { $in: ['completed', 'cancelled'] } })) / (limit || 5));
+        res.status(200).json({ success: true, appointments, totalPages });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
 module.exports = {
     getAppointments,
-    cancelAppointment
+    cancelAppointment,
+    getCompletedAppointments
 }
