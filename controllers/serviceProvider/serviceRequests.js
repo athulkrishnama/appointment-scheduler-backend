@@ -109,6 +109,7 @@ const acceptQuotation = async (req, res) => {
     try {
         const requestId = req.params.id;
         const quotationId = req.body.quotation;
+        const paymentMethod = req.body.paymentMethod;
         const quotation = await Quotation.findById(quotationId);
         const serviceRequest = await ServiceRequest.findById(requestId).populate([{
             path: 'service',
@@ -135,7 +136,8 @@ const acceptQuotation = async (req, res) => {
             additionalDetails: serviceRequest.additionalDetails,
             address: serviceRequest.address,
             serviceProvider: serviceRequest.service.serviceProvider,
-            client: serviceRequest.client
+            client: serviceRequest.client,
+            paymentMethod
         });
         await appointment.save();
         res.status(200).json({ success: true, message: "Quotation accepted" });
