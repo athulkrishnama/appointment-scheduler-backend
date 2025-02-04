@@ -107,6 +107,7 @@ const markAsCompleted = async (req, res) => {
                 existingWallet.balance = newBalance;
                 await existingWallet.save();
             }
+            appointment.paymentStatus = paymentStatus.completed;
         }
         appointment.status = 'completed';
         await appointment.save();
