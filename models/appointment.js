@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const ROLES = require("../constants/roles");
+const paymentMethod = require('../constants/paymentMethod');
+const paymentStatus = require('../constants/paymentStatus');
 const appointmentSchema = new mongoose.Schema({
     serviceRequest: {
         type: mongoose.Schema.Types.ObjectId,
@@ -43,6 +45,18 @@ const appointmentSchema = new mongoose.Schema({
     additionalNotes: {
         type: String,
         required: true,
+    },
+    paymentMethod:{
+        type:String,
+        enum: Object.values(paymentMethod),
+        required:true,
+    },
+
+    paymentStatus:{
+        type:String,
+        enum:Object.values(paymentStatus),
+        default:paymentStatus.pending,
+        required:true
     },
     additionalDetails: [
         {
