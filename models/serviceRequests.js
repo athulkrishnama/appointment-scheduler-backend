@@ -16,12 +16,7 @@ const serviceRequestSchema = new mongoose.Schema(
           }
           return false;
         },
-        autopopulate: ()=>{
-          if(this.status === "accepted"){
-            return true;
-          }
-          return false;
-        }
+        
     }
     ,
     client: {

@@ -5,7 +5,6 @@ const QuotationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "ServiceRequest",
         required: true,
-        autopopulate: true
     },
     status: {
         type: String,
