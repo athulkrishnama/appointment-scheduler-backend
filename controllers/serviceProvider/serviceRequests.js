@@ -121,6 +121,8 @@ const acceptQuotation = async (req, res) => {
         if(!quotation || !serviceRequest){
             return res.status(404).json({ success: false, message: "Quotation or service request not found" });
         }
+
+        const amount = quotation.amountBreakdown.reduce((total, field)=>total+field.amount, 0);
         serviceRequest.quotation = quotationId;
         serviceRequest.status = "accepted";
         quotation.status = "accepted";
@@ -137,7 +139,8 @@ const acceptQuotation = async (req, res) => {
             address: serviceRequest.address,
             serviceProvider: serviceRequest.service.serviceProvider,
             client: serviceRequest.client,
-            paymentMethod
+            paymentMethod,
+            amount
         });
         await appointment.save();
         res.status(200).json({ success: true, message: "Quotation accepted" });

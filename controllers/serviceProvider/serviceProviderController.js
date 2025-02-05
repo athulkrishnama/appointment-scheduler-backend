@@ -3,6 +3,8 @@ const User = require("../../models/user");
 const { uploadBanner } = require("../../helpers/imageUploader");
 const ROLES = require("../../constants/roles");
 const { uploadLogo } = require("../../helpers/imageUploader");
+const Wallet = require("../../models/wallet");
+
 const addService = async (req, res) => {
   try {
     const { serviceName, serviceDescription, category, additionalDetails } =
@@ -187,6 +189,21 @@ const updateServiceProviderDetails = async (req, res) => {
         res.status(500).json({success:false, message: "Failed to Update Details"})
     }
 };
+
+const getWallet = async(req, res)=>{
+  try {
+    const userId = req.userId;
+    const userWallet = await Wallet.findOne({userId: userId}).populate([{path:'transactions', populate: {path:'appointment', populate:{path:'client'}}}])
+    if (!userWallet) {
+      return res.status(404).json({success:false, message: "Wallet not found"})
+    }
+    res.status(200).json({success: true, wallet:userWallet})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({success:false, message: "Failed to get wallet"})
+  }
+}
+
 module.exports = {
   addService,
   getServices,
@@ -195,4 +212,5 @@ module.exports = {
   getServiceProviderDetails,
   updateLogo,
   updateServiceProviderDetails,
+  getWallet,
 };

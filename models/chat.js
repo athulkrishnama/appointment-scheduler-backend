@@ -5,7 +5,6 @@ const chatSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "ServiceRequest",
         required: true,
-        autopopulate: true
     },
     messageType: {
         type: String,
@@ -15,18 +14,15 @@ const chatSchema = new mongoose.Schema({
     message: {
         type: mongoose.Schema.Types.Mixed,
         required: true,
-        validate: {
-            validator: function (value) {
-                return typeof value === 'string' || (typeof value === 'object' && value instanceof mongoose.Types.ObjectId);
-            },
-            message: 'Message must be a string or a valid reference to a quotation model.'
-        },
+        // validate: {
+        //     validator: function (value) {
+        //         return typeof value === 'string' || (typeof value === 'object' && value instanceof mongoose.Types.ObjectId);
+        //     },
+        //     message: 'Message must be a string or a valid reference to a quotation model.'
+        // },
         ref: function() {
             return this.messageType !== 'text' ? 'Quotation' : null;
         },
-        autopopulate: function() {
-            return this.messageType !== 'text';
-        }
     },
     sender: {
         type:String,
@@ -43,6 +39,5 @@ const chatSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// chatSchema.plugin(require('mongoose-autopopulate'));
 
 module.exports = mongoose.model("Chat", chatSchema);

@@ -7,7 +7,6 @@ const appointmentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "ServiceRequest",
         required: true,
-        autopopulate: true
     },
     client: {
         type: mongoose.Schema.Types.ObjectId,
@@ -44,6 +43,10 @@ const appointmentSchema = new mongoose.Schema({
     },
     additionalNotes: {
         type: String,
+        required: true,
+    },
+    amount: {
+        type: Number,
         required: true,
     },
     paymentMethod:{

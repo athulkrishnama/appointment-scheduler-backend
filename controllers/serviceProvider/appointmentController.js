@@ -1,5 +1,11 @@
 const ROLES = require('../../constants/roles');
 const Appointment = require('../../models/appointment');
+const Transaction = require('../../models/transactions');
+const Wallet = require('../../models/wallet');
+const paymentMethod = require('../../constants/paymentMethod');
+const transactionTypes = require('../../constants/transactionType');
+const paymentStatus = require('../../constants/paymentStatus');
+const COMMISION_PERCENTAGE = require('../../constants/commision');
 
 const getAppointments = async (req, res) => {
     try {
@@ -52,6 +58,7 @@ const cancelAppointment = async (req, res) => {
     }
 }
 
+
 const markAsCompleted = async (req, res) => {
     try {
         const appointment = await Appointment.findById(req.params.id);
@@ -65,6 +72,42 @@ const markAsCompleted = async (req, res) => {
         }
         if(appointment.date > new Date()){
             return res.status(400).json({ success: false, message: "You cannot mark an appointment as completed in the future" });
+        }
+        if(appointment.paymentMethod === paymentMethod.cash){
+            await appointment.populate({
+                path: 'serviceRequest',
+                populate: {
+                    path: 'quotation'
+                }
+            });
+
+            const totalAmount = appointment.serviceRequest.quotation.amountBreakdown.reduce((total, field)=>total+field.amount, 0);
+
+            const transaction = await Transaction.create({
+                appointment: appointment._id,
+                amount: totalAmount * COMMISION_PERCENTAGE,
+                type: 'debit',
+                transactionType: transactionTypes.COMMISSION_DEDUCTION,
+            })
+
+            const existingWallet = await Wallet.findOne({ userId: req.userId });
+
+
+            if(!existingWallet){
+                const wallet = new Wallet({
+                    userId: req.userId,
+                    transactions: [transaction._id],
+                    balance: -(transaction.amount)
+                });
+                await wallet.save();
+            }else{
+                existingWallet.transactions.push(transaction._id);
+                const existingBalance = existingWallet.balance;
+                const newBalance = existingBalance - transaction.amount;
+                existingWallet.balance = newBalance;
+                await existingWallet.save();
+            }
+            appointment.paymentStatus = paymentStatus.completed;
         }
         appointment.status = 'completed';
         await appointment.save();
