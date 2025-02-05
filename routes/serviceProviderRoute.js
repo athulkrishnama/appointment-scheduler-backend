@@ -36,6 +36,7 @@ serviceProviderRoute.get("/getCompletedAppointments", verifyToken, appointmentCo
 serviceProviderRoute.patch('/cancelAppointment/:id', verifyToken, appointmentController.cancelAppointment)
 serviceProviderRoute.patch('/markAsCompleted/:id', verifyToken, appointmentController.markAsCompleted)
 
+// wallet
 serviceProviderRoute.get('/wallet', verifyToken, serviceProviderController.getWallet)
 
 module.exports = serviceProviderRoute
