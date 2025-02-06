@@ -3,6 +3,7 @@ const serviceProviderRoute = express.Router();
 const serviceProviderController = require("../controllers/serviceProvider/serviceProviderController");
 const ServiceRequestController = require("../controllers/serviceProvider/serviceRequests");
 const appointmentController = require("../controllers/serviceProvider/appointmentController");
+const couponController = require("../controllers/serviceProvider/couponController");
 const {verifyToken} = require("../middlewares/auth")
 const multer = require('multer');
 const serviceRequests = require("../models/serviceRequests");
@@ -38,5 +39,10 @@ serviceProviderRoute.patch('/markAsCompleted/:id', verifyToken, appointmentContr
 
 // wallet
 serviceProviderRoute.get('/wallet', verifyToken, serviceProviderController.getWallet)
+
+// coupons
+serviceProviderRoute.get('/getCoupons', verifyToken, couponController.getCoupons)
+serviceProviderRoute.post('/addCoupon', verifyToken, couponController.addCoupon)
+serviceProviderRoute.patch('/toggleCouponStatus/:id', verifyToken, couponController.toggleCouponStatus)
 
 module.exports = serviceProviderRoute
