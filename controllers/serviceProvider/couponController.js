@@ -20,7 +20,7 @@ const getCoupons = async (req, res) => {
 
 const addCoupon = async (req, res) => {
     try {
-        const {couponCode, description, discount, minAmount, limit, expiryDate} = req.body;
+        const {couponCode, description, discount, minAmount, limit, expiryDate, maxDiscount} = req.body;
         const serviceProvider = req.userId
         const existingCoupon = await Coupon.findOne({couponCode, serviceProvider})
         if(existingCoupon) return res.status(400).json({success: false, message: 'Coupon already exists'})
@@ -31,6 +31,7 @@ const addCoupon = async (req, res) => {
             minAmount,
             limit,
             expiryDate,
+            maxDiscount,
             serviceProvider
         })
         await newCoupon.save()
