@@ -38,6 +38,16 @@ const couponSchema = new mongoose.Schema({
             message: 'Minimum amount should be greater than 0'
         }
     },
+    maxDiscount: {
+        type: Number,
+        required: true,
+        validate: {
+            validator: function (value) {
+                return value > 0;
+            },
+            message: 'Maximum discount should be greater than 0'
+        }
+    },
     isActive: {
         type: Boolean,
         default: true
@@ -77,7 +87,7 @@ couponSchema.statics.incrementUsedCount = async (couponId) => {
     if (coupon.usedCount >= coupon.limit) {
         throw new Error("Limit exceeded");
     }
-    const updatedCoupon = await this.findByIdAndUpdate(
+    const updatedCoupon = await Coupon.findByIdAndUpdate(
         couponId,
         {
             $inc: { usedCount: 1 }
