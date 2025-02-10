@@ -53,7 +53,7 @@ const getCompletedAppointments = async (req, res) => {
             .populate('service')
             .populate('serviceProvider')
             .sort({ date: -1 })
-            .skip((page - 1) * (limit || 5))
+            .skip((page - 1) * limit) 
             .limit(limit);
         const totalPages = Math.ceil((await Appointment.countDocuments({ client: req.userId, status: { $in: ['completed', 'cancelled'] } })) / (limit || 5));
         res.status(200).json({ success: true, appointments, totalPages });

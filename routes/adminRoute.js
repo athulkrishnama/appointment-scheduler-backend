@@ -21,7 +21,11 @@ adminRoute.get("/dashboard", verifyToken, adminController.getDashboardData);
 adminRoute.get("/categories", verifyToken, categoryController.getCategories);
 adminRoute.post("/addCategory", verifyToken, categoryController.addCategory);
 adminRoute.patch("/updateCategoryStatus/:id", verifyToken, categoryController.updateCategoryStatus);
+
 // adminRoute.delete("/deleteCategory/:id", verifyToken, adminController.deleteCategory);
 adminRoute.put("/updateCategory/:id", verifyToken, categoryController.updateCategory);
+
+// wallet management
+adminRoute.get("/wallet", verifyToken, adminController.getWalletData);
 
 module.exports = adminRoute
