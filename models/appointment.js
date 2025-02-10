@@ -61,6 +61,17 @@ const appointmentSchema = new mongoose.Schema({
         default:paymentStatus.pending,
         required:true
     },
+    coupon:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Coupon',
+    },
+    couponDiscount: {
+        type: Number,
+        default:0
+    },
+    finalAmount:{
+        type: Number,
+    },
     additionalDetails: [
         {
             fieldName: {

@@ -6,6 +6,8 @@ const paymentMethod = require('../../constants/paymentMethod');
 const transactionTypes = require('../../constants/transactionType');
 const paymentStatus = require('../../constants/paymentStatus');
 const COMMISION_PERCENTAGE = require('../../constants/commision');
+const walletHelper = require('../../helpers/wallerHelper');
+const User = require('../../models/user');
 
 const getAppointments = async (req, res) => {
     try {
@@ -81,11 +83,12 @@ const markAsCompleted = async (req, res) => {
                 }
             });
 
-            const totalAmount = appointment.serviceRequest.quotation.amountBreakdown.reduce((total, field)=>total+field.amount, 0);
+            const totalAmount = appointment.amount;
+            const platformFee = totalAmount * COMMISION_PERCENTAGE;
 
             const transaction = await Transaction.create({
                 appointment: appointment._id,
-                amount: totalAmount * COMMISION_PERCENTAGE,
+                amount: platformFee,
                 type: 'debit',
                 transactionType: transactionTypes.COMMISSION_DEDUCTION,
             })
@@ -106,6 +109,12 @@ const markAsCompleted = async (req, res) => {
                 const newBalance = existingBalance - transaction.amount;
                 existingWallet.balance = newBalance;
                 await existingWallet.save();
+            }
+
+            const admin = await User.findOne({role:ROLES.ADMIN});
+            const res = await walletHelper.addAmountToWallet(admin._id, platformFee, transactionTypes.PLATFORM_FEE, appointment._id);
+            if(!res){
+                throw new Error("Failed to add amount to wallet")
             }
             appointment.paymentStatus = paymentStatus.completed;
         }

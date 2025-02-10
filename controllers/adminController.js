@@ -3,6 +3,7 @@ const Service = require("../models/services");
 const STATUSES = require("../constants/statuses");
 const ROLES = require("../constants/roles");
 const Appointment = require("../models/appointment");
+const Wallet = require("../models/wallet");
 
 const serviceProviderRequests = async (req, res) => {
     try {
@@ -124,6 +125,16 @@ const getDashboardData = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to fetch data" });
     }
 }
+
+const getWalletData = async (req, res) => {
+    try {
+        const wallet = await Wallet.findOne({userId: req.userId}).populate([{path:'transactions', populate: {path:'appointment', populate:{path:'client'}}}]);
+        res.status(200).json({success: true, wallet})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({success:false, message: "Failed to get wallet data"})
+    }
+}
 module.exports = {
     serviceProviderRequests,
     updateRequestStatus,
@@ -132,5 +143,6 @@ module.exports = {
     getServiceProvider,
     updateServiceProviderStatus,
     getServices,
-    getDashboardData
+    getDashboardData,
+    getWalletData
 };

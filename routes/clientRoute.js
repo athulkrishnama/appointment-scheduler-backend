@@ -5,7 +5,8 @@ const clientController = require('../controllers/client/clientController')
 const serviceRequestController = require('../controllers/client/serviceRequestController')
 const addressController = require('../controllers/client/addressController')
 const appointmentController = require('../controllers/client/appointmentController')
-
+const couponController = require('../controllers/client/couponController')
+const paymentController = require('../controllers/client/paymentController')
 
 
 clientRoute.get('/getTopServices', clientController.getTopServices)
@@ -36,5 +37,13 @@ clientRoute.delete('/deleteAddress/:id',verifyToken,addressController.deleteAddr
 clientRoute.get('/getAppointments',verifyToken,appointmentController.getAppointments)
 clientRoute.get('/getCompletedAppointments', verifyToken, appointmentController.getCompletedAppointments);
 clientRoute.patch('/cancelAppointment/:id',verifyToken,appointmentController.cancelAppointment)
+
+// coupon Route
+clientRoute.get('/getCoupons/:id', verifyToken, couponController.getCoupons)
+
+
+// payment Route
+clientRoute.post('/createRazorPayOrder', verifyToken, paymentController.createRazorPayOrder)
+clientRoute.post('/verifyPayment', verifyToken, paymentController.verifyPayment)
 
 module.exports = clientRoute

@@ -67,7 +67,7 @@ const couponSchema = new mongoose.Schema({
         default: 0,
         validate: {
             validator: function (value) {
-                return value < this.limit;
+                return value <= this.limit;
             },
             message: "Limit exceeded"
         }
@@ -79,24 +79,26 @@ const couponSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-couponSchema.statics.incrementUsedCount = async (couponId) => {
-    const coupon = await Coupon.findById(couponId);
-    if (!coupon) {
-        throw new Error("Coupon not found");
-    }
-    if (coupon.usedCount >= coupon.limit) {
-        throw new Error("Limit exceeded");
-    }
-    const updatedCoupon = await Coupon.findByIdAndUpdate(
-        couponId,
-        {
-            $inc: { usedCount: 1 }
-        }, {
-        runValidators: true
-    }
-    )
-    coupon.usedCount++;
-    await coupon.save();
-}
+// 
+
+// couponSchema.statics.incrementUsedCount = async (couponId) => {
+//     const coupon = await Coupon.findById(couponId);
+//     if (!coupon) {
+//         throw new Error("Coupon not found");
+//     }
+//     if (coupon.usedCount >= coupon.limit) {
+//         throw new Error("Limit exceeded");
+//     }
+//     const updatedCoupon = await Coupon.findByIdAndUpdate(
+//         couponId,
+//         {
+//             $inc: { usedCount: 1 }
+//         }, {
+//         runValidators: true
+//     }
+//     )
+//     coupon.usedCount++;
+//     await coupon.save();
+// }
 
 module.exports = mongoose.model("Coupon", couponSchema);
