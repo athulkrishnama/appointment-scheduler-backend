@@ -16,7 +16,6 @@ const addAmountToWallet = async (userId, amount, transactionType, appointmentId)
         }
 
         const wallet = await Wallet.findOne({userId: userId});
-        console.log(userId)
         if (!wallet) {
             const newWallet = await Wallet.create({
                 userId,

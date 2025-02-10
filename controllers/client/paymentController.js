@@ -80,7 +80,6 @@ const verifyPayment = async (req, res) => {
 
             const res = await walletHelper.addAmountToWallet(appointment.serviceProvider, serviceFee, TRANSACTION_TYPE.SERVICE_PAYMENT, appointmentId);
             const admin = await User.findOne({role:ROLES.ADMIN})
-            console.log(admin)
             const adminRes = await walletHelper.addAmountToWallet(admin._id, platformFee, TRANSACTION_TYPE.PLATFORM_FEE, appointmentId);
 
             if (!res || !adminRes) {
