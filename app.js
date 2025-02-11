@@ -37,7 +37,7 @@ app.use(session({
 
 app.use(cookieParser());
 
-const allowedOrigins = [origins.client, origins.service, origins.admin];
+const allowedOrigins = [origins.client, origins.service, origins.admin, origins.socket];
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.indexOf(origin) !== -1 ) {
