@@ -31,7 +31,34 @@ const getServiceRequests = async (req, res)=>{
     }
 }
 
+const getServiceRequest = async (req,res) =>{
+    try {
+        const serviceRequest = await ServiceRequest.findById(req.params.id).populate([
+            {
+                path: 'service',
+                populate: {
+                  path: 'serviceProvider', 
+                }
+              },
+              {
+                path: 'client'
+              },
+              {
+                path: 'address'
+              },
+              {
+                path: 'quotation'
+              }
+        ]);
+        res.status(200).json({ success: true, serviceRequest });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Failed to get service request" });
+    }
+}
+
 module.exports={
     serviceRequest,
-    getServiceRequests
+    getServiceRequests,
+    getServiceRequest
 }
