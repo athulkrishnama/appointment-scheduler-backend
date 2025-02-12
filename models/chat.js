@@ -29,6 +29,17 @@ const chatSchema = new mongoose.Schema({
         enum: ["client", "service provider"],
         required: true,
     },
+    senderId: {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required: true,
+    },
+    receiverId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required: true,
+    },
+
     // for implementing status in future
     // status: {
     //     type: String,

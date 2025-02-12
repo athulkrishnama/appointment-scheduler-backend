@@ -8,7 +8,9 @@ const saveTextMessage = async (data) => {
             messageType: types.text,
             message: data.message,
             serviceRequest: data.room,
-            sender: data.sender === "client" ? sender.client : sender.serviceProvider
+            sender: data.sender === "client" ? sender.client : sender.serviceProvider,
+            senderId: data.senderId,
+            receiverId: data.receiverId
         })
         const newChat = await chat.save();
         return newChat;
@@ -31,7 +33,9 @@ const saveQuotation = async (data) => {
             messageType: types.quotation,
             message: newQuotation._id,
             serviceRequest: data.room,
-            sender: data.sender === "client" ? sender.client : sender.serviceProvider
+            sender: data.sender === "client" ? sender.client : sender.serviceProvider,
+            senderId: data.senderId,
+            receiverId: data.receiverId
         })
         const newChat = await chat.save();
         
