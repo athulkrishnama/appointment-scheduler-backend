@@ -1,4 +1,5 @@
 const chatSocket = require("../chat/chatSocket");
+const {notficationSocket} = require('../notification/notificationSocket');
 const {instrument} = require('@socket.io/admin-ui')
 const origins = require("../constants/origins");
 
@@ -10,7 +11,13 @@ const initializeSocket = (server) => {
         },
     });
 
-    chatSocket(io);
+    
+    const chatNamespace = io.of("/chat");
+    const notificationNamespace = io.of("/notifications");
+
+    chatSocket(chatNamespace, notificationNamespace);
+    notficationSocket(notificationNamespace);
+
     instrument(io, {
         auth: {
             type:"basic",
