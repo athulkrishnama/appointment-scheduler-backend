@@ -52,6 +52,7 @@ const getCompletedAppointments = async (req, res) => {
         const appointments = await Appointment.find({ client: req.userId, status: { $in: ['completed', 'cancelled'] } })
             .populate('service')
             .populate('serviceProvider')
+            .populate('coupon')
             .sort({ date: -1 })
             .skip((page - 1) * limit) 
             .limit(limit);

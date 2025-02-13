@@ -46,5 +46,7 @@ clientRoute.get('/getCoupons/:id', verifyToken, couponController.getCoupons)
 // payment Route
 clientRoute.post('/createRazorPayOrder', verifyToken, paymentController.createRazorPayOrder)
 clientRoute.post('/verifyPayment', verifyToken, paymentController.verifyPayment)
+clientRoute.post("/retryPaymentCreateOrder", verifyToken, paymentController.retryPaymentCreateOrder)
+clientRoute.post("/verifyRazorpayPayment", verifyToken, paymentController.verifyRazorpayPayment)
 
 module.exports = clientRoute
