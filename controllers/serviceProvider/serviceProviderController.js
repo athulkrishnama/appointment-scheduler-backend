@@ -4,6 +4,11 @@ const { uploadBanner } = require("../../helpers/imageUploader");
 const ROLES = require("../../constants/roles");
 const { uploadLogo } = require("../../helpers/imageUploader");
 const Wallet = require("../../models/wallet");
+const walletHelper = require("../../helpers/wallerHelper");
+const topupToken = require("../../models/topupToken");
+const paymentStatus = require("../../constants/paymentStatus");
+const RazorpayHelper = require("../../helpers/razorpay");
+const transactionTypes = require("../../constants/transactionType");
 
 const addService = async (req, res) => {
   try {
@@ -204,6 +209,99 @@ const getWallet = async(req, res)=>{
   }
 }
 
+const topupWallet = async(req, res)=>{
+  try {
+    const token = req.params.token;
+    const topupTokenData = await topupToken.findOne({token: token})
+    if (!topupTokenData) {
+      return res.status(404).json({success:false, message: "Topup token not found"})
+    }
+
+    if(topupTokenData.paymentStatus === paymentStatus.completed){
+      return res.status(400).json({success:false, message: "Topup token already used"})
+    }
+
+    const userWallet = await Wallet.findOne({userId: topupTokenData.userId})
+    if (!userWallet) {
+      return res.status(404).json({success:false, message: "Wallet not found"})
+    }
+
+    const serviceProvider = await User.findById(topupTokenData.userId)
+    if (!serviceProvider) {
+      return res.status(404).json({success:false, message: "Service provider not found"})
+    }
+
+    return res.status(200).json({success:true, serviceProvider, wallet:userWallet})
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({success:false, message: "Failed to fetch topup data"})
+  }
+}
+
+const createTopupOrder = async(req, res)=>{
+  try {
+    const {token , serviceProviderId} = req.body;
+    const topupTokenData = await topupToken.findOne({token: token})
+    if(!topupTokenData){
+      return res.status(404).json({success:false, message: "Topup token not found"})
+    }
+    if(topupTokenData.paymentStatus === paymentStatus.completed){
+      return res.status(400).json({success:false, message: "Topup token already used"})
+    }
+
+    const wallet = await Wallet.findOne({userId: serviceProviderId})
+    if(!wallet){
+      return res.status(404).json({success:false, message: "Wallet not found"})
+    }
+
+    const order = await RazorpayHelper.createOrder(-wallet.balance)
+    if(!order){
+      return res.status(500).json({success:false, message: "Failed to create order"})
+    }
+
+
+    return res.status(200).json({success:true, order})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({success:false, message: "Failed to create topup order"})
+  }
+}
+
+const verifyTopupPayment = async(req, res)=>{
+  try {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature , token, amount} = req.body
+
+    const verified = await RazorpayHelper.verifyPayment(razorpay_order_id, razorpay_signature, razorpay_payment_id)
+    if(!verified){
+      return res.status(500).json({success:false, message: "Payment verification failed"})
+    }
+
+    const topupTokenData = await topupToken.findOne({token: token})
+    if(!topupTokenData){
+      return res.status(500).json({success:false, message: "Topup token not found"})
+    }
+
+    const response = await walletHelper.addAmountToWallet(topupTokenData.userId, amount/100, transactionTypes.DEPOSIT)
+    if(!response){
+      return res.status(500).json({success:false, message: "Failed to add amount to wallet"})
+    }
+
+    const serviceProvider = await User.findById(topupTokenData.userId)
+    if(!serviceProvider){
+      return res.status(500).json({success:false, message: "Service provider not found"})
+    }
+    serviceProvider.isActive = true;
+    topupTokenData.paymentStatus = paymentStatus.completed
+    await topupTokenData.save()
+    await serviceProvider.save()
+
+    res.status(200).json({success:true, message: "Payment verified successfully"})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({success:false, message: "Failed to verify topup payment"})
+  }
+}
+
 module.exports = {
   addService,
   getServices,
@@ -213,4 +311,7 @@ module.exports = {
   updateLogo,
   updateServiceProviderDetails,
   getWallet,
+  topupWallet,
+  createTopupOrder,
+  verifyTopupPayment
 };

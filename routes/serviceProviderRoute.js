@@ -39,6 +39,9 @@ serviceProviderRoute.patch('/markAsCompleted/:id', verifyToken, appointmentContr
 
 // wallet
 serviceProviderRoute.get('/wallet', verifyToken, serviceProviderController.getWallet)
+serviceProviderRoute.get('/topupWallet/:token', serviceProviderController.topupWallet)
+serviceProviderRoute.post('/topupWallet', serviceProviderController.createTopupOrder)
+serviceProviderRoute.post('/verifyTopupPayment', serviceProviderController.verifyTopupPayment)
 
 // coupons
 serviceProviderRoute.get('/getCoupons', verifyToken, couponController.getCoupons)
