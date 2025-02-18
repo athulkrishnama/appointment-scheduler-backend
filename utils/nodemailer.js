@@ -28,4 +28,21 @@ const sendMail = async (to, otp) => {
     }
 }
 
-module.exports = sendMail
+const sendServiceProviderBlockMail = async(serviceProvider, payoutLink) => {
+    const mailOptions = {
+        from: process.env.GOOGLE_MAIL,
+        to: serviceProvider.email,
+        subject: "Account Blocked",
+        text: `Your account has been blocked by admin, contact admin for more details\nyou can unblock your account by visiting this link ${payoutLink}`,
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        return info;
+    } catch (error) {
+        console.log("Error sending email:", error);
+        return false
+    }
+}
+
+module.exports = {sendMail,sendServiceProviderBlockMail}
