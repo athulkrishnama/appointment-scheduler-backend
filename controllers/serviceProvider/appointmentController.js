@@ -8,6 +8,30 @@ const paymentStatus = require('../../constants/paymentStatus');
 const COMMISION_PERCENTAGE = require('../../constants/commision');
 const walletHelper = require('../../helpers/wallerHelper');
 const User = require('../../models/user');
+const DUE_THRESHOLD = require('../../constants/dueThreshhold');
+const {sendServiceProviderBlockMail} = require('../../utils/nodemailer');
+const TopupToken = require('../../models/topupToken');
+const ORIGINS = require('../../constants/origins');
+
+const checkOverDue = async (id) => {
+    try {
+        const serviceProvider = await User.findById(id);
+        const wallet = await Wallet.findOne({userId: id});
+        if(wallet.balance < DUE_THRESHOLD){
+            serviceProvider.isActive = false;
+            await serviceProvider.save();
+            const newTopupToken = await TopupToken.create({
+                userId: id,
+            })
+            const payoutLink = `${ORIGINS.service}/topup/${newTopupToken.token}`
+            await sendServiceProviderBlockMail(serviceProvider, payoutLink)
+            return true
+        }
+        return false
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 const getAppointments = async (req, res) => {
     try {
@@ -103,6 +127,10 @@ const markAsCompleted = async (req, res) => {
                     balance: -(transaction.amount)
                 });
                 await wallet.save();
+                // if(wallet.balance < DUE_THRESHOLD){
+                //     await blockServiceOnDue(req.userId);
+                //     return res.status(400).json({ success: true, message: "Your wallet balance is below the due threshold, contact admin for furtur details" })
+                // }
             }else{
                 existingWallet.transactions.push(transaction._id);
                 const existingBalance = existingWallet.balance;
@@ -112,8 +140,8 @@ const markAsCompleted = async (req, res) => {
             }
 
             const admin = await User.findOne({role:ROLES.ADMIN});
-            const res = await walletHelper.addAmountToWallet(admin._id, platformFee, transactionTypes.PLATFORM_FEE, appointment._id);
-            if(!res){
+            const response = await walletHelper.addAmountToWallet(admin._id, platformFee, transactionTypes.PLATFORM_FEE, appointment._id);
+            if(!response){
                 throw new Error("Failed to add amount to wallet")
             }
             appointment.paymentStatus = paymentStatus.completed;
@@ -121,6 +149,10 @@ const markAsCompleted = async (req, res) => {
         appointment.status = 'completed';
         await appointment.save();
 
+        const checkOverdue =await checkOverDue(appointment.serviceProvider);
+        if(checkOverdue){
+            return res.status(400).json({ success: false, message: "Your wallet balance is below the due threshold, contact admin for furtur details" })
+        }
         res.status(200).json({ success: true, message: "Appointment marked as completed" });
     } catch (error) {
         console.error(error);
