@@ -45,4 +45,20 @@ const sendServiceProviderBlockMail = async(serviceProvider, payoutLink) => {
     }
 }
 
-module.exports = {sendMail,sendServiceProviderBlockMail}
+const sendMailer = async (to , subject, content) => {
+    try{
+        const mailOptions = {
+            from: process.env.GOOGLE_MAIL,
+            to,
+            subject,
+            text: content,
+        };
+        const info = await transporter.sendMail(mailOptions);
+        return info;
+    } catch (error) {
+        console.log("Error sending email:", error);
+        return false
+    }
+}
+
+module.exports = {sendMail,sendServiceProviderBlockMail,sendMailer}

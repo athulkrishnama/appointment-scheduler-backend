@@ -4,6 +4,7 @@ const STATUSES = require("../constants/statuses");
 const ROLES = require("../constants/roles");
 const Appointment = require("../models/appointment");
 const Wallet = require("../models/wallet");
+const {sendAcceptMail, sendRejectMail} = require("../helpers/emailHelper");
 
 const serviceProviderRequests = async (req, res) => {
     try {
@@ -20,13 +21,18 @@ const serviceProviderRequests = async (req, res) => {
 
 const updateRequestStatus = async (req, res) => {
     try {
-        const { id, status } = req.body;
+        const { id, status , reason} = req.body;
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({ success: false, message: "Service provider not found" });
         }
         user.serviceDetails.isAccepted = status;
         await user.save();
+        if(status === STATUSES.ACCEPTED){
+            await sendAcceptMail(user.email, user.fullname);
+        }else if(status === STATUSES.REJECTED){
+            await sendRejectMail(user.email, user.fullname, reason);
+        }
         res.status(200).json({ success: true, message: "Request status updated successfully" });
     } catch (err) {
         console.log(err);
