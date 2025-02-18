@@ -1,7 +1,7 @@
 const ROLES = require("../constants/roles");
 const STATUSES = require("../constants/statuses");
 const User = require("../models/user");
-const sendMail = require("../utils/nodemailer");
+const {sendMail} = require("../utils/nodemailer");
 const jwt = require("jsonwebtoken");
 const imageUploader = require("../helpers/imageUploader");
 const signup = async (req, res) => {
