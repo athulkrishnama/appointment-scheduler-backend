@@ -14,9 +14,11 @@ const notficationSocket = (io) => {
         }
     })
 
-    io.on('connection', (socket)=>{
+    io.on('connection', async(socket)=>{
         onlineUsers.set(socket.userId, socket.id)
-        console.log("online ", onlineUsers)
+        console.log("online", onlineUsers)
+        const pendingNotification = await helper.getPendingNotification(socket.userId)
+        if(pendingNotification.length > 0) await helper.sendNotifications(socket, pendingNotification)
 
         socket.on('disconnect', () => {
             onlineUsers.delete(socket.userId)
