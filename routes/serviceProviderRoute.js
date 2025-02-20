@@ -4,6 +4,7 @@ const serviceProviderController = require("../controllers/serviceProvider/servic
 const ServiceRequestController = require("../controllers/serviceProvider/serviceRequests");
 const appointmentController = require("../controllers/serviceProvider/appointmentController");
 const couponController = require("../controllers/serviceProvider/couponController");
+const reportController = require("../controllers/serviceProvider/reportController");
 const {verifyToken} = require("../middlewares/auth")
 const multer = require('multer');
 const serviceRequests = require("../models/serviceRequests");
@@ -47,5 +48,10 @@ serviceProviderRoute.post('/verifyTopupPayment', serviceProviderController.verif
 serviceProviderRoute.get('/getCoupons', verifyToken, couponController.getCoupons)
 serviceProviderRoute.post('/addCoupon', verifyToken, couponController.addCoupon)
 serviceProviderRoute.patch('/toggleCouponStatus/:id', verifyToken, couponController.toggleCouponStatus)
+
+// reports
+serviceProviderRoute.get("/dashboard", verifyToken, reportController.getDashboardData)
+serviceProviderRoute.get("/salesReport", verifyToken, reportController.getSalesReport)
+// serviceProviderRoute.post("/salesReportDownload", verifyToken, reportController.downloadSalesReport)
 
 module.exports = serviceProviderRoute
