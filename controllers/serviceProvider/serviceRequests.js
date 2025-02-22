@@ -16,10 +16,20 @@ const getServiceRequests = async (req, res) => {
             match: { serviceProvider: serviceProvider }
         },{
             path: 'client'
-        }]).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        }])
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
 
         const filteredServiceRequests = serviceRequests.filter(request => request.service?.serviceProvider);
-        const totalPages = Math.ceil(filteredServiceRequests.length / limit);
+        const allDocuments = await ServiceRequest.find({status:'pending'}).populate([{
+            path: 'service',
+            match: { serviceProvider: serviceProvider }
+        },{
+            path: 'client'
+        }]);
+        const filterData = allDocuments.filter(request => request.service?.serviceProvider);
+        const totalPages = Math.ceil(filterData.length / limit);
         res.status(200).json({ success: true, serviceRequests: filteredServiceRequests, totalPages });
     } catch (error) {
         console.log(error);
