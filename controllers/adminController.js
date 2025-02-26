@@ -4,7 +4,11 @@ const STATUSES = require("../constants/statuses");
 const ROLES = require("../constants/roles");
 const Appointment = require("../models/appointment");
 const Wallet = require("../models/wallet");
-const {sendAcceptMail, sendRejectMail} = require("../helpers/emailHelper");
+const Report = require("../models/report")
+const reportStatus = require("../constants/reportStatus")
+const reportActions = require("../constants/reportActions")
+const {sendAcceptMail, sendRejectMail, sendReportMails} = require("../helpers/emailHelper");
+const { serviceProvider } = require("../constants/sender");
 
 const serviceProviderRequests = async (req, res) => {
     try {
@@ -141,6 +145,52 @@ const getWalletData = async (req, res) => {
         res.status(500).json({success:false, message: "Failed to get wallet data"})
     }
 }
+
+const getReports = async (req, res) =>{
+    try {
+        const reports = await Report.find({status:reportStatus.pending}).populate('client').populate('serviceProvider').populate('appointment')
+        res.status(200).json({success:true, reports})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({success:false, message:"Failed to fetch report data"})
+    }
+}
+
+const takeAction = async(req,res)=>{
+    try {
+        const {report:reportId, action} = req.body
+
+        const report = await Report.findOne({_id:reportId}).populate([
+            {path:'client'},
+            {path:'serviceProvider'},
+            {path:"appointment"}
+        ])
+
+        if(!report)return res.status(404).json({success:false, message:"Report not found"});
+
+        if(action === reportActions.ignore){
+            const emailResponse = await sendReportMails(report.client, report.serviceProvider, report?.appointment?.service, reportActions.ignore);
+            report.actionTook = reportActions.ignore;
+        }else if(action === reportActions.warn){
+            const emailResponse = await sendReportMails(report.client, report.serviceProvider, report?.appointment?.service, reportActions.warn);
+            report.actionTook = reportActions.warn;
+        }else if(action === reportActions.block){
+            const emailResponse = await sendReportMails(report.client, report.serviceProvider, report?.appointment?.service, reportActions.block)
+            
+            const serviceProvider = await User.findByIdAndUpdate(report.serviceProvider._id, {isActive:false})
+        }else{
+            return res.status(400).json({success:false, message:"invalid action"});
+        }
+        report.status = reportStatus.completed
+        await report.save()
+        const message = action === reportActions.block ? "Service Provider Blocked Successfully": action === reportActions.warn ? "warning send to service provider scuccessfully": "Report ignored"
+        return res.status(200).json({success:true, message})
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({success:false, message:"Error while taking action"})
+    }
+}
 module.exports = {
     serviceProviderRequests,
     updateRequestStatus,
@@ -150,5 +200,7 @@ module.exports = {
     updateServiceProviderStatus,
     getServices,
     getDashboardData,
-    getWalletData
+    getWalletData,
+    getReports,
+    takeAction
 };

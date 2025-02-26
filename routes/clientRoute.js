@@ -7,6 +7,7 @@ const addressController = require('../controllers/client/addressController')
 const appointmentController = require('../controllers/client/appointmentController')
 const couponController = require('../controllers/client/couponController')
 const paymentController = require('../controllers/client/paymentController')
+const reportController = require('../controllers/client/reportController')
 
 
 clientRoute.get('/getTopServices', clientController.getTopServices)
@@ -48,5 +49,8 @@ clientRoute.post('/createRazorPayOrder', verifyToken, paymentController.createRa
 clientRoute.post('/verifyPayment', verifyToken, paymentController.verifyPayment)
 clientRoute.post("/retryPaymentCreateOrder", verifyToken, paymentController.retryPaymentCreateOrder)
 clientRoute.post("/verifyRazorpayPayment", verifyToken, paymentController.verifyRazorpayPayment)
+
+// report
+clientRoute.post('/report', verifyToken, reportController.createReport)
 
 module.exports = clientRoute
