@@ -3,6 +3,7 @@ const adminRoute = express.Router();
 const adminController = require("../controllers/adminController");
 const categoryController = require("../controllers/categoryController");
 const {verifyToken} = require("../middlewares/auth")
+
 // serviece provider requests
 adminRoute.get("/serviceProviderRequests", verifyToken, adminController.serviceProviderRequests);
 adminRoute.patch("/updateRequestStatus", verifyToken, adminController.updateRequestStatus);
@@ -27,5 +28,9 @@ adminRoute.put("/updateCategory/:id", verifyToken, categoryController.updateCate
 
 // wallet management
 adminRoute.get("/wallet", verifyToken, adminController.getWalletData);
+
+// reports
+adminRoute.get("/reports", verifyToken, adminController.getReports)
+adminRoute.post("/takeaction", verifyToken, adminController.takeAction)
 
 module.exports = adminRoute
