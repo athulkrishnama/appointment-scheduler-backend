@@ -16,7 +16,11 @@ adminRoute.patch("/updateClientStatus/:id", verifyToken, adminController.updateC
 adminRoute.get("/service-providers",verifyToken, adminController.getServiceProvider);
 adminRoute.patch("/updateServiceProviderStatus/:id", verifyToken, adminController.updateServiceProviderStatus);
 adminRoute.get("/services", verifyToken, adminController.getServices);
+
+// dashboard
 adminRoute.get("/dashboard", verifyToken, adminController.getDashboardData);
+adminRoute.get("/appointments", verifyToken, adminController.getAppointmentsData)
+adminRoute.get("/getBestServiceProviders", verifyToken, adminController.getBestServiceProviders)
 
 // category management
 adminRoute.get("/categories", verifyToken, categoryController.getCategories);
