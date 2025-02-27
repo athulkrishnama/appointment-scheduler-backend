@@ -41,9 +41,10 @@ const signup = async (req, res) => {
       req.session.otpExpiry = Date.now() + 60 * 1000;
       const logo = req.files?.logo[0];
       const document = req.files?.document[0];
-      req.session.logo = logo.buffer
-      req.session.document = document.buffer
-      
+      if(logo){
+        req.session.logo = logo.buffer
+        req.session.document = document.buffer
+      }
 
       res.status(200).json({ success: true, message: "Otp sent successfully" });
     } catch (error) {
