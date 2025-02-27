@@ -105,6 +105,8 @@ const updateService = async (req, res) => {
       const imagelink = await uploadBanner(req.file.buffer);
       updatedService.image = imagelink;
     }
+    const existingService = await Service.findOne({serviceProvider:req.userId, serviceName:updatedService.serviceName})
+    if(existingService)return res.status(400).json({success:false, message:"Service name already existing"})
     const response = await Service.findByIdAndUpdate(id, updatedService, {
       new: true,
     });
