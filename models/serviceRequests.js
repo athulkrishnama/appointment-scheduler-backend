@@ -68,24 +68,24 @@ const serviceRequestSchema = new mongoose.Schema(
         }
       },
     ],
-    recurringEndDate: {
-      type: Date,
-    },
-    serviceFrequency: {
-      type: String,
-      enum: [
-        'Once',
-        'Weekly Twice',
-        'Daily',
-        'Weekly',
-        'Fortnightly',
-        'Monthly',
-        'Quarterly',
-        'Half Yearly',
-        'Yearly'
-      ],
-      required: [true, "Service frequency is required"],
-    },
+    // recurringEndDate: {
+    //   type: Date,
+    // },
+    // serviceFrequency: {
+    //   type: String,
+    //   enum: [
+    //     'Once',
+    //     'Weekly Twice',
+    //     'Daily',
+    //     'Weekly',
+    //     'Fortnightly',
+    //     'Monthly',
+    //     'Quarterly',
+    //     'Half Yearly',
+    //     'Yearly'
+    //   ],
+    //   required: [true, "Service frequency is required"],
+    // },
   },
   {
     timestamps: true,
