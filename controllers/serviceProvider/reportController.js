@@ -25,7 +25,7 @@ const getDashboardData = async (req, res) => {
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
             const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1); 
         
-            filter = { createdAt: { $gte: startOfMonth, $lt: endOfMonth }, serviceProvider: new mongoose.Types.ObjectId(req.userId) };
+            filter = { date: { $gte: startOfMonth, $lt: endOfMonth }, serviceProvider: new mongoose.Types.ObjectId(req.userId) };
         
             groupBy = {
                 _id: { $dayOfMonth: "$createdAt" }, 
@@ -58,7 +58,7 @@ const getDashboardData = async (req, res) => {
         
         else if (period === 'yearly') {
             const startOfYear = new Date(today.getFullYear(), 0, 1);
-            filter = { createdAt: { $gte: startOfYear } };
+            filter = { date: { $gte: startOfYear } };
 
             groupBy = {
                 _id: { $month: "$createdAt" },
