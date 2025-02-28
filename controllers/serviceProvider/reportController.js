@@ -15,7 +15,7 @@ const getDashboardData = async (req, res) => {
 
             filter = { date: { $gte: startOfWeek }, serviceProvider:new mongoose.Types.ObjectId(req.userId) };
             groupBy = {
-                _id: { $dayOfWeek: "$createdAt" },
+                _id: { $dayOfWeek: "$date" },
                 count: { $sum: 1 }
             };
 
@@ -28,7 +28,7 @@ const getDashboardData = async (req, res) => {
             filter = { date: { $gte: startOfMonth, $lt: endOfMonth }, serviceProvider: new mongoose.Types.ObjectId(req.userId) };
         
             groupBy = {
-                _id: { $dayOfMonth: "$createdAt" }, 
+                _id: { $dayOfMonth: "$date" }, 
                 count: { $sum: 1 }
             };
         
@@ -61,7 +61,7 @@ const getDashboardData = async (req, res) => {
             filter = { date: { $gte: startOfYear } };
 
             groupBy = {
-                _id: { $month: "$createdAt" },
+                _id: { $month: "$date" },
                 count: { $sum: 1 }
             };
 
