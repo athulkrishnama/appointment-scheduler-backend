@@ -17,7 +17,7 @@ const getServiceRequests = async (req, res) => {
         },{
             path: 'client'
         }])
-        .sort({ createdAt: -1 })
+        // .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit);
 
