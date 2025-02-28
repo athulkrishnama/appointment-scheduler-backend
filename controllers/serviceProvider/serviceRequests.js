@@ -11,26 +11,21 @@ const getServiceRequests = async (req, res) => {
         const serviceProvider = req.userId;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
-        const serviceRequests = await ServiceRequest.find({status:'pending'}).populate([{
-            path: 'service',
-            match: { serviceProvider: serviceProvider }
-        },{
-            path: 'client'
-        }])
-        // .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit);
+
+        const serviceRequests = await ServiceRequest.find({ status: 'pending' })
+            .populate([{ path: 'service', match: { serviceProvider: serviceProvider } }, { path: 'client' }])
+            .sort({ createdAt: -1 });
 
         const filteredServiceRequests = serviceRequests.filter(request => request.service?.serviceProvider);
-        const allDocuments = await ServiceRequest.find({status:'pending'}).populate([{
-            path: 'service',
-            match: { serviceProvider: serviceProvider }
-        },{
-            path: 'client'
-        }]);
-        const filterData = allDocuments.filter(request => request.service?.serviceProvider);
-        const totalPages = Math.ceil(filterData.length / limit);
-        res.status(200).json({ success: true, serviceRequests: filteredServiceRequests, totalPages });
+
+        const paginatedServiceRequests = filteredServiceRequests.slice((page - 1) * limit, page * limit);
+        const totalPages = Math.ceil(filteredServiceRequests.length / limit);
+
+        res.status(200).json({
+            success: true,
+            serviceRequests: paginatedServiceRequests,
+            totalPages
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: "Failed to get service requests" });
