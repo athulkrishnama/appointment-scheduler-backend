@@ -13,7 +13,7 @@ const getDashboardData = async (req, res) => {
             const startOfWeek = new Date();
             startOfWeek.setDate(today.getDate() - 6); 
 
-            filter = { createdAt: { $gte: startOfWeek }, serviceProvider:new mongoose.Types.ObjectId(req.userId) };
+            filter = { date: { $gte: startOfWeek }, serviceProvider:new mongoose.Types.ObjectId(req.userId) };
             groupBy = {
                 _id: { $dayOfWeek: "$createdAt" },
                 count: { $sum: 1 }
